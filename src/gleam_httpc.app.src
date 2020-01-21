@@ -1,0 +1,16 @@
+{application, gleam_httpc,
+ [{description, "A Gleam program"},
+  {vsn, "1.0.0"},
+  {registered, []},
+  {applications,
+   [kernel,
+    stdlib,
+    ssl,
+    inets
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+]}.
