@@ -1,4 +1,4 @@
-# gleam_httpc
+# httpc
 
 Bindings to Erlang's built in HTTP client, `httpc`.
 
@@ -20,4 +20,15 @@ pub fn request_test() {
     body: "{\"message\":\"Hello World\"}",
   )))
 }
+```
+
+## Installation
+
+If [available in Hex](https://hex.pm/docs/publish) this package can be installed
+by adding `gleam_httpc` to your `rebar.config` dependencies:
+
+```erlang
+{deps, [
+    gleam_httpc
+]}.
 ```

@@ -1,5 +1,5 @@
 {application, gleam_httpc,
- [{description, "A Gleam program"},
+ [{description, "Gleam bindings to Erlang's built in HTTP client, httpc"},
   {vsn, "1.0.0"},
   {registered, []},
   {applications,
