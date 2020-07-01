@@ -31,8 +31,8 @@ pub fn request_test() {
 
 ## Installation
 
-If this package can be installed by adding `gleam_httpc` to your
-`rebar.config` dependencies:
+This package can be installed by adding `gleam_httpc` to your `rebar.config`
+dependencies:
 
 ```erlang
 {deps, [
