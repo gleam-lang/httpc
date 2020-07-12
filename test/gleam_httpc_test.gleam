@@ -1,70 +1,85 @@
-import gleam/httpc.{NoBody, StringBody}
+import gleam/httpc
 import gleam/http.{Get, Head, Options}
 import gleam/list
 import gleam/should
 
 pub fn request_test() {
-  let Ok(
-    response,
-  ) = httpc.request(
-    method: Get,
-    url: "https://test-api.service.hmrc.gov.uk/hello/world",
-    headers: [tuple("accept", "application/vnd.hmrc.1.0+json")],
-    body: NoBody,
-  )
-  let httpc.Response(status, headers, body) = response
-  should.equal(status, 200)
-  should.equal(list.key_find(headers, "content-type"), Ok("application/json"))
-  should.equal(body, "{\"message\":\"Hello World\"}")
+  assert Ok(
+    req,
+  ) = http.request(Get, "https://test-api.service.hmrc.gov.uk/hello/world")
+  assert Ok(
+    resp,
+  ) = req
+    |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
+    |> httpc.send
+
+  resp.status
+  |> should.equal(200)
+
+  resp
+  |> http.get_resp_header("content-type")
+  |> should.equal(Ok("application/json"))
+
+  resp.body
+  |> should.equal("{\"message\":\"Hello World\"}")
 }
 
 pub fn get_request_discards_body_test() {
-  let Ok(
-    response,
-  ) = httpc.request(
-    method: Get,
-    url: "https://test-api.service.hmrc.gov.uk/hello/world",
-    headers: [tuple("accept", "application/vnd.hmrc.1.0+json")],
-    body: StringBody(content_type: "application/json", body: "{}"),
-  )
-  let httpc.Response(status, headers, body) = response
-  should.equal(status, 200)
-  should.equal(list.key_find(headers, "content-type"), Ok("application/json"))
-  should.equal(body, "{\"message\":\"Hello World\"}")
+  assert Ok(
+    req,
+  ) = http.request(Get, "https://test-api.service.hmrc.gov.uk/hello/world")
+  assert Ok(
+    resp,
+  ) = req
+    |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
+    |> http.prepend_req_header("content-type", "application-json")
+    |> httpc.send
+
+  resp.status
+  |> should.equal(200)
+
+  resp
+  |> http.get_resp_header("content-type")
+  |> should.equal(Ok("application/json"))
+
+  resp.body
+  |> should.equal("{\"message\":\"Hello World\"}")
 }
 
 pub fn head_request_discards_body_test() {
-  let Ok(
-    response,
-  ) = httpc.request(
-    method: Head,
-    url: "https://postman-echo.com/get",
-    headers: [],
-    body: StringBody(content_type: "application/json", body: "{}"),
-  )
-  let httpc.Response(status, headers, body) = response
-  should.equal(status, 200)
-  should.equal(
-    list.key_find(headers, "content-type"),
-    Ok("application/json; charset=utf-8"),
-  )
-  should.equal(body, "")
+  assert Ok(req) = http.request(Head, "https://postman-echo.com/get")
+  assert Ok(
+    resp,
+  ) = req
+    |> http.set_req_body("This gets dropped")
+    |> httpc.send
+
+  resp.status
+  |> should.equal(200)
+
+  resp
+  |> http.get_resp_header("content-type")
+  |> should.equal(Ok("application/json; charset=utf-8"))
+
+  resp.body
+  |> should.equal("")
 }
 
 pub fn options_request_discards_body_test() {
-  let Ok(
-    response,
-  ) = httpc.request(
-    method: Options,
-    url: "https://postman-echo.com/get",
-    headers: [],
-    body: StringBody(content_type: "application/json", body: "{}"),
-  )
-  let httpc.Response(status, headers, body) = response
-  should.equal(status, 200)
-  should.equal(
-    list.key_find(headers, "content-type"),
-    Ok("text/html; charset=utf-8"),
-  )
-  should.equal(body, "GET,HEAD,PUT,POST,DELETE,PATCH")
+  assert Ok(req) = http.request(Options, "https://postman-echo.com/get")
+  assert Ok(
+    resp,
+  ) = req
+    |> http.set_req_body("This gets dropped")
+    |> httpc.send
+
+  resp.status
+  |> should.equal(200)
+
+  resp
+  |> http.get_resp_header("content-type")
+  |> should.equal(Ok("text/html; charset=utf-8"))
+
+  resp.body
+  |> should.equal("GET,HEAD,PUT,POST,DELETE,PATCH")
 }

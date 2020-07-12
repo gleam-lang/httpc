@@ -1,6 +1,9 @@
 import gleam/dynamic.{Dynamic}
-import gleam/http.{Method}
+import gleam/http.{Method, Request, Response}
+import gleam/bit_string
+import gleam/result
 import gleam/list
+import gleam/uri
 
 external type Charlist
 
@@ -22,11 +25,15 @@ type ErlOption {
 
 external fn erl_request(
   Method,
-  tuple(Charlist, List(tuple(Charlist, Charlist)), Charlist, String),
+  tuple(Charlist, List(tuple(Charlist, Charlist)), Charlist, BitString),
   List(ErlHttpOption),
   List(ErlOption),
 ) -> Result(
-  tuple(tuple(Charlist, Int, Charlist), List(tuple(Charlist, Charlist)), String),
+  tuple(
+    tuple(Charlist, Int, Charlist),
+    List(tuple(Charlist, Charlist)),
+    BitString,
+  ),
   Dynamic,
 ) =
   "httpc" "request"
@@ -37,20 +44,14 @@ external fn erl_request_no_body(
   List(ErlHttpOption),
   List(ErlOption),
 ) -> Result(
-  tuple(tuple(Charlist, Int, Charlist), List(tuple(Charlist, Charlist)), String),
+  tuple(
+    tuple(Charlist, Int, Charlist),
+    List(tuple(Charlist, Charlist)),
+    BitString,
+  ),
   Dynamic,
 ) =
   "httpc" "request"
-
-pub type RequestBody {
-  StringBody(content_type: String, body: String)
-  BitBody(content_type: String, body: BitString)
-  NoBody
-}
-
-pub type Response {
-  Response(status: Int, headers: List(tuple(String, String)), body: String)
-}
 
 fn charlist_header(header: tuple(String, String)) -> tuple(Charlist, Charlist) {
   let tuple(k, v) = header
@@ -62,35 +63,47 @@ fn string_header(header: tuple(Charlist, Charlist)) -> tuple(String, String) {
   tuple(list_to_binary(k), list_to_binary(v))
 }
 
+// TODO: test
 // TODO: refine error type
-pub fn request(
-  method method: Method,
-  url url: String,
-  headers headers: List(tuple(String, String)),
-  body body: RequestBody,
-) -> Result(Response, Dynamic) {
-  let erl_url = binary_to_list(url)
-  let erl_headers = list.map(headers, charlist_header)
+pub fn send_bits(
+  req: Request(BitString),
+) -> Result(Response(BitString), Dynamic) {
+  let erl_url = req
+    |> http.req_to_uri
+    |> uri.to_string
+    |> binary_to_list
+  let erl_headers = list.map(req.headers, charlist_header)
   let erl_http_options = []
   let erl_options = [BodyFormat(Binary)]
 
-  let response = case method, body {
-    http.Options, _ | http.Head, _ | http.Get, _ | _, NoBody -> {
-      let request = tuple(erl_url, erl_headers)
-      erl_request_no_body(method, request, erl_http_options, erl_options)
+  try response = case req.method {
+    http.Options | http.Head | http.Get -> {
+      let erl_req = tuple(erl_url, erl_headers)
+      erl_request_no_body(req.method, erl_req, erl_http_options, erl_options)
     }
-    _, StringBody(content_type: content_type, body: body) -> {
-      let erl_content_type = binary_to_list(content_type)
-      let request = tuple(erl_url, erl_headers, erl_content_type, body)
-      erl_request(method, request, erl_http_options, erl_options)
+    _ -> {
+      let erl_content_type = req
+        |> http.get_req_header("content-type")
+        |> result.unwrap("application/octet-stream")
+        |> binary_to_list
+      let erl_req = tuple(erl_url, erl_headers, erl_content_type, req.body)
+      erl_request(req.method, erl_req, erl_http_options, erl_options)
     }
   }
 
-  case response {
-    Error(error) -> Error(error)
+  let tuple(tuple(_version, status, _status), headers, resp_body) = response
+  Ok(Response(status, list.map(headers, string_header), resp_body))
+}
 
-    Ok(
-      tuple(tuple(_http_version, status, _status), headers, resp_body),
-    ) -> Ok(Response(status, list.map(headers, string_header), resp_body))
+// TODO: test
+// TODO: refine error type
+pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
+  try resp = req
+    |> http.map_req_body(bit_string.from_string)
+    |> send_bits
+
+  case bit_string.to_string(resp.body) {
+    Ok(body) -> Ok(http.set_resp_body(resp, body))
+    Error(_) -> Error(dynamic.from("Response body was not valid UTF-8"))
   }
 }
