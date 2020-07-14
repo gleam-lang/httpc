@@ -3,29 +3,33 @@
 Bindings to Erlang's built in HTTP client, `httpc`.
 
 ```rust
-import gleam/httpc.{Response, NoBody}
-import gleam/http.{Get}
-import gleam/bit_string
+import gleam/httpc
+import gleam/http.{Get, Response}
 import gleam/should
 
-pub fn request_test() {
-  // Make a HTTP request
-  try response = httpc.request(
-    method: Get,
-    url: "https://test-api.service.hmrc.gov.uk/hello/world",
-    headers: [tuple("accept", "application/vnd.hmrc.1.0+json")],
-    body: NoBody,
-  )
+const url = "https://test-api.service.hmrc.gov.uk/hello/world"
 
-  // We get back a Response record
-  should.equal(response, Response(
-    status: 200,
-    headers: [tuple("content-type", "application/json")],
-    body: <<"{\"message\":\"Hello World\"}">>,
-  ))
+pub fn main() {
+  // Prepare a HTTP request record
+  assert Ok(req) = http.request(Get, url)
 
-  // We can convert the response body into a String if it is valid utf-8
-  bit_string.to_string(response.body)
+  // Add a header to the request
+  let resp = req
+    |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
+
+  // Send the HTTP request to the server
+  try resp = httpc.send(req)
+
+  // We get a response record back
+  resp.status
+  |> should.equal(200)
+  resp
+  |> http.get_resp_header("content-type")
+  |> should.equal(Ok("application/json"))
+  resp.body
+  |> should.equal("{\"message\":\"Hello World\"}")
+
+  Ok(resp)
 }
 ```
 

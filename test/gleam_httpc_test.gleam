@@ -1,12 +1,12 @@
 import gleam/httpc
-import gleam/http.{Get, Head, Options}
+import gleam/http.{Get, Head, Options, Post, Response}
 import gleam/list
 import gleam/should
 
 pub fn request_test() {
-  assert Ok(
-    req,
-  ) = http.request(Get, "https://test-api.service.hmrc.gov.uk/hello/world")
+  let url = "https://test-api.service.hmrc.gov.uk/hello/world"
+  assert Ok(req) = http.request(Get, url)
+
   assert Ok(
     resp,
   ) = req
