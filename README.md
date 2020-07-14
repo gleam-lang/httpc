@@ -23,9 +23,11 @@ pub fn main() {
   // We get a response record back
   resp.status
   |> should.equal(200)
+
   resp
   |> http.get_resp_header("content-type")
   |> should.equal(Ok("application/json"))
+
   resp.body
   |> should.equal("{\"message\":\"Hello World\"}")
 
