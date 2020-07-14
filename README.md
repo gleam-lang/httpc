@@ -51,11 +51,11 @@ file, depending on how you run your program.
 
 ```erlang
 {applications, [
-  kernel,
-  stdlib,
-  ssl,
-  inets,
-  gleam_stdlib,
-  gleam_httpc
+    kernel,
+    stdlib,
+    ssl,
+    inets,
+    gleam_stdlib,
+    gleam_httpc
 ]},
 ```
