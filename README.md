@@ -10,9 +10,9 @@ import gleam/should
 pub fn main() {
   // Prepare a HTTP request record
   let resp = http.default_req()
-    |> http.set_req_method(Get)
-    |> http.set_req_host("test-api.service.hmrc.gov.uk")
-    |> http.set_req_path("/hello/world")
+    |> http.set_method(Get)
+    |> http.set_host("test-api.service.hmrc.gov.uk")
+    |> http.set_path("/hello/world")
     |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
 
   // Send the HTTP request to the server

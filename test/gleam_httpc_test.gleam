@@ -5,9 +5,9 @@ import gleam/should
 
 pub fn request_test() {
   let req = http.default_req()
-    |> http.set_req_method(Get)
-    |> http.set_req_host("test-api.service.hmrc.gov.uk")
-    |> http.set_req_path("/hello/world")
+    |> http.set_method(Get)
+    |> http.set_host("test-api.service.hmrc.gov.uk")
+    |> http.set_path("/hello/world")
     |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
 
   assert Ok(resp) = httpc.send(req)
@@ -25,9 +25,9 @@ pub fn request_test() {
 
 pub fn get_request_discards_body_test() {
   let req = http.default_req()
-    |> http.set_req_method(Get)
-    |> http.set_req_host("test-api.service.hmrc.gov.uk")
-    |> http.set_req_path("/hello/world")
+    |> http.set_method(Get)
+    |> http.set_host("test-api.service.hmrc.gov.uk")
+    |> http.set_path("/hello/world")
     |> http.set_req_body("This gets dropped")
     |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
 
@@ -46,9 +46,9 @@ pub fn get_request_discards_body_test() {
 
 pub fn head_request_discards_body_test() {
   let req = http.default_req()
-    |> http.set_req_method(Head)
-    |> http.set_req_host("postman-echo.com")
-    |> http.set_req_path("/get")
+    |> http.set_method(Head)
+    |> http.set_host("postman-echo.com")
+    |> http.set_path("/get")
     |> http.set_req_body("This gets dropped")
 
   assert Ok(resp) = httpc.send(req)
@@ -66,9 +66,9 @@ pub fn head_request_discards_body_test() {
 
 pub fn options_request_discards_body_test() {
   let req = http.default_req()
-    |> http.set_req_method(Options)
-    |> http.set_req_host("postman-echo.com")
-    |> http.set_req_path("/get")
+    |> http.set_method(Options)
+    |> http.set_host("postman-echo.com")
+    |> http.set_path("/get")
     |> http.set_req_body("This gets dropped")
 
   assert Ok(resp) = httpc.send(req)
