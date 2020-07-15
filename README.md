@@ -7,14 +7,12 @@ import gleam/httpc
 import gleam/http.{Get, Response}
 import gleam/should
 
-const url = "https://test-api.service.hmrc.gov.uk/hello/world"
-
 pub fn main() {
   // Prepare a HTTP request record
-  assert Ok(req) = http.request(Get, url)
-
-  // Add a header to the request
-  let resp = req
+  let resp = http.default_req()
+    |> http.set_req_method(Get)
+    |> http.set_req_host("test-api.service.hmrc.gov.uk")
+    |> http.set_req_path("/hello/world")
     |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
 
   // Send the HTTP request to the server

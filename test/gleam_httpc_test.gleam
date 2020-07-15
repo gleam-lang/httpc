@@ -4,14 +4,13 @@ import gleam/list
 import gleam/should
 
 pub fn request_test() {
-  let url = "https://test-api.service.hmrc.gov.uk/hello/world"
-  assert Ok(req) = http.request(Get, url)
-
-  assert Ok(
-    resp,
-  ) = req
+  let req = http.default_req()
+    |> http.set_req_method(Get)
+    |> http.set_req_host("test-api.service.hmrc.gov.uk")
+    |> http.set_req_path("/hello/world")
     |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
-    |> httpc.send
+
+  assert Ok(resp) = httpc.send(req)
 
   resp.status
   |> should.equal(200)
@@ -25,15 +24,14 @@ pub fn request_test() {
 }
 
 pub fn get_request_discards_body_test() {
-  assert Ok(
-    req,
-  ) = http.request(Get, "https://test-api.service.hmrc.gov.uk/hello/world")
-  assert Ok(
-    resp,
-  ) = req
+  let req = http.default_req()
+    |> http.set_req_method(Get)
+    |> http.set_req_host("test-api.service.hmrc.gov.uk")
+    |> http.set_req_path("/hello/world")
+    |> http.set_req_body("This gets dropped")
     |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
-    |> http.prepend_req_header("content-type", "application-json")
-    |> httpc.send
+
+  assert Ok(resp) = httpc.send(req)
 
   resp.status
   |> should.equal(200)
@@ -47,12 +45,13 @@ pub fn get_request_discards_body_test() {
 }
 
 pub fn head_request_discards_body_test() {
-  assert Ok(req) = http.request(Head, "https://postman-echo.com/get")
-  assert Ok(
-    resp,
-  ) = req
+  let req = http.default_req()
+    |> http.set_req_method(Head)
+    |> http.set_req_host("postman-echo.com")
+    |> http.set_req_path("/get")
     |> http.set_req_body("This gets dropped")
-    |> httpc.send
+
+  assert Ok(resp) = httpc.send(req)
 
   resp.status
   |> should.equal(200)
@@ -66,12 +65,13 @@ pub fn head_request_discards_body_test() {
 }
 
 pub fn options_request_discards_body_test() {
-  assert Ok(req) = http.request(Options, "https://postman-echo.com/get")
-  assert Ok(
-    resp,
-  ) = req
+  let req = http.default_req()
+    |> http.set_req_method(Options)
+    |> http.set_req_host("postman-echo.com")
+    |> http.set_req_path("/get")
     |> http.set_req_body("This gets dropped")
-    |> httpc.send
+
+  assert Ok(resp) = httpc.send(req)
 
   resp.status
   |> should.equal(200)
