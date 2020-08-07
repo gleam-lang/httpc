@@ -1,0 +1,8 @@
+{"1.1.0",
+[{<<"gleam_http">>,{pkg,<<"gleam_http">>,<<"1.3.0">>},0},
+ {<<"gleam_stdlib">>,{pkg,<<"gleam_stdlib">>,<<"0.10.1">>},0}]}.
+[
+{pkg_hash,[
+ {<<"gleam_http">>, <<"DC84D787CB49550D7E98834A966A4F07EE90FE863A6088E752E8F1A208AB41C1">>},
+ {<<"gleam_stdlib">>, <<"F123F33E03B5CDF5E19FC179B9EE81269DEB93F7DEFADB17EF2930E4DB9011E7">>}]}
+].
