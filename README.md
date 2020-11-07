@@ -4,12 +4,12 @@ Bindings to Erlang's built in HTTP client, `httpc`.
 
 ```rust
 import gleam/httpc
-import gleam/http.{Get, Response}
+import gleam/http.{Get}
 import gleam/should
 
 pub fn main() {
   // Prepare a HTTP request record
-  let resp = http.default_req()
+  let req = http.default_req()
     |> http.set_method(Get)
     |> http.set_host("test-api.service.hmrc.gov.uk")
     |> http.set_path("/hello/world")
