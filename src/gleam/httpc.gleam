@@ -68,7 +68,8 @@ fn string_header(header: tuple(Charlist, Charlist)) -> tuple(String, String) {
 pub fn send_bits(
   req: Request(BitString),
 ) -> Result(Response(BitString), Dynamic) {
-  let erl_url = req
+  let erl_url =
+    req
     |> http.req_to_uri
     |> uri.to_string
     |> binary_to_list
@@ -82,7 +83,8 @@ pub fn send_bits(
       erl_request_no_body(req.method, erl_req, erl_http_options, erl_options)
     }
     _ -> {
-      let erl_content_type = req
+      let erl_content_type =
+        req
         |> http.get_req_header("content-type")
         |> result.unwrap("application/octet-stream")
         |> binary_to_list
@@ -98,7 +100,8 @@ pub fn send_bits(
 // TODO: test
 // TODO: refine error type
 pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
-  try resp = req
+  try resp =
+    req
     |> http.map_req_body(bit_string.from_string)
     |> send_bits
 
