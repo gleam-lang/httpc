@@ -1,5 +1,5 @@
 import gleam/httpc
-import gleam/http.{Get, Head, Options, Post}
+import gleam/http.{Get, Head, Options}
 import gleam/list
 import gleam/should
 

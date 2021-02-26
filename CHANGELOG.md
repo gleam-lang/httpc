@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.1 - 2021-02-26
+
+- Upgraded `gleam_http` to v2.0.0.
+- Upgraded `gleam_stdlib` to v0.14.0.
+
 ## v1.0.0 - 2020-11-26
 
 - Gleam stdlib version requirement relaxed.
