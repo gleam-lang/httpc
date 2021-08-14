@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.0.2 - 2021-08-14
 
 - Upgraded for Gleam v0.16.
 

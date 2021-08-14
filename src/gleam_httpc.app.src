@@ -1,6 +1,6 @@
 {application, gleam_httpc,
  [{description, "Gleam bindings to Erlang's built in HTTP client, httpc"},
-  {vsn, "1.0.1"},
+  {vsn, "1.0.2"},
   {registered, []},
   {applications,
    [kernel,
