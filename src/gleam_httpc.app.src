@@ -12,5 +12,6 @@
   {modules, []},
 
   {licenses, ["Apache 2.0"]},
-  {links, [{"GitHub", "https://github.com/gleam-lang/httpc"}]}
+  {links, [{"GitHub", "https://github.com/gleam-lang/httpc"}]},
+  {include_files, ["gleam.toml", "gen"]}
 ]}.
