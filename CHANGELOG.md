@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.2 - 2021-11-17
+- Upgraded `gleam_http` to v2.0.2.
+- Upgraded `gleam_stdlib` to v0.17.1.
+- Fixes Erlang install
+
 ## v1.0.1 - 2021-02-26
 
 - Upgraded `gleam_http` to v2.0.0.

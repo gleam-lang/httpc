@@ -25,42 +25,34 @@ type ErlOption {
 
 external fn erl_request(
   Method,
-  tuple(Charlist, List(tuple(Charlist, Charlist)), Charlist, BitString),
+  #(Charlist, List(#(Charlist, Charlist)), Charlist, BitString),
   List(ErlHttpOption),
   List(ErlOption),
 ) -> Result(
-  tuple(
-    tuple(Charlist, Int, Charlist),
-    List(tuple(Charlist, Charlist)),
-    BitString,
-  ),
+  #(#(Charlist, Int, Charlist), List(#(Charlist, Charlist)), BitString),
   Dynamic,
 ) =
   "httpc" "request"
 
 external fn erl_request_no_body(
   Method,
-  tuple(Charlist, List(tuple(Charlist, Charlist))),
+  #(Charlist, List(#(Charlist, Charlist))),
   List(ErlHttpOption),
   List(ErlOption),
 ) -> Result(
-  tuple(
-    tuple(Charlist, Int, Charlist),
-    List(tuple(Charlist, Charlist)),
-    BitString,
-  ),
+  #(#(Charlist, Int, Charlist), List(#(Charlist, Charlist)), BitString),
   Dynamic,
 ) =
   "httpc" "request"
 
-fn charlist_header(header: tuple(String, String)) -> tuple(Charlist, Charlist) {
-  let tuple(k, v) = header
-  tuple(binary_to_list(k), binary_to_list(v))
+fn charlist_header(header: #(String, String)) -> #(Charlist, Charlist) {
+  let #(k, v) = header
+  #(binary_to_list(k), binary_to_list(v))
 }
 
-fn string_header(header: tuple(Charlist, Charlist)) -> tuple(String, String) {
-  let tuple(k, v) = header
-  tuple(list_to_binary(k), list_to_binary(v))
+fn string_header(header: #(Charlist, Charlist)) -> #(String, String) {
+  let #(k, v) = header
+  #(list_to_binary(k), list_to_binary(v))
 }
 
 // TODO: test
@@ -79,7 +71,7 @@ pub fn send_bits(
 
   try response = case req.method {
     http.Options | http.Head | http.Get -> {
-      let erl_req = tuple(erl_url, erl_headers)
+      let erl_req = #(erl_url, erl_headers)
       erl_request_no_body(req.method, erl_req, erl_http_options, erl_options)
     }
     _ -> {
@@ -88,12 +80,12 @@ pub fn send_bits(
         |> http.get_req_header("content-type")
         |> result.unwrap("application/octet-stream")
         |> binary_to_list
-      let erl_req = tuple(erl_url, erl_headers, erl_content_type, req.body)
+      let erl_req = #(erl_url, erl_headers, erl_content_type, req.body)
       erl_request(req.method, erl_req, erl_http_options, erl_options)
     }
   }
 
-  let tuple(tuple(_version, status, _status), headers, resp_body) = response
+  let #(#(_version, status, _status), headers, resp_body) = response
   Ok(Response(status, list.map(headers, string_header), resp_body))
 }
 
