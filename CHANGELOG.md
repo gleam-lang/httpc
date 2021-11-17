@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.0.3 - 2021-11-17
 
 - Upgraded `gleam_http` to v2.0.2.
 - Upgraded `gleam_stdlib` to v0.17.1.
