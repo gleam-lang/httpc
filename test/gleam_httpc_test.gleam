@@ -1,7 +1,15 @@
 import gleam/httpc
 import gleam/http.{Get, Head, Options}
 import gleam/list
-import gleam/should
+import gleeunit
+import hack.{GleamHttpc, Inets, Ssl}
+
+pub fn main() {
+  assert Ok(_) = hack.ensure_all_started(Inets)
+  assert Ok(_) = hack.ensure_all_started(Ssl)
+  assert Ok(_) = hack.ensure_all_started(GleamHttpc)
+  gleeunit.main()
+}
 
 pub fn request_test() {
   let req =
@@ -12,16 +20,9 @@ pub fn request_test() {
     |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
 
   assert Ok(resp) = httpc.send(req)
-
-  resp.status
-  |> should.equal(200)
-
-  resp
-  |> http.get_resp_header("content-type")
-  |> should.equal(Ok("application/json"))
-
-  resp.body
-  |> should.equal("{\"message\":\"Hello World\"}")
+  assert 200 = resp.status
+  assert Ok("application/json") = http.get_resp_header(resp, "content-type")
+  assert "{\"message\":\"Hello World\"}" = resp.body
 }
 
 pub fn get_request_discards_body_test() {
@@ -34,16 +35,9 @@ pub fn get_request_discards_body_test() {
     |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
 
   assert Ok(resp) = httpc.send(req)
-
-  resp.status
-  |> should.equal(200)
-
-  resp
-  |> http.get_resp_header("content-type")
-  |> should.equal(Ok("application/json"))
-
-  resp.body
-  |> should.equal("{\"message\":\"Hello World\"}")
+  assert 200 = resp.status
+  assert Ok("application/json") = http.get_resp_header(resp, "content-type")
+  assert "{\"message\":\"Hello World\"}" = resp.body
 }
 
 pub fn head_request_discards_body_test() {
@@ -55,16 +49,10 @@ pub fn head_request_discards_body_test() {
     |> http.set_req_body("This gets dropped")
 
   assert Ok(resp) = httpc.send(req)
-
-  resp.status
-  |> should.equal(200)
-
-  resp
-  |> http.get_resp_header("content-type")
-  |> should.equal(Ok("application/json; charset=utf-8"))
-
-  resp.body
-  |> should.equal("")
+  assert 200 = resp.status
+  assert Ok("application/json; charset=utf-8") =
+    http.get_resp_header(resp, "content-type")
+  assert "" = resp.body
 }
 
 pub fn options_request_discards_body_test() {
@@ -76,14 +64,8 @@ pub fn options_request_discards_body_test() {
     |> http.set_req_body("This gets dropped")
 
   assert Ok(resp) = httpc.send(req)
-
-  resp.status
-  |> should.equal(200)
-
-  resp
-  |> http.get_resp_header("content-type")
-  |> should.equal(Ok("text/html; charset=utf-8"))
-
-  resp.body
-  |> should.equal("GET,HEAD,PUT,POST,DELETE,PATCH")
+  assert 200 = resp.status
+  assert Ok("text/html; charset=utf-8") =
+    http.get_resp_header(resp, "content-type")
+  assert "GET,HEAD,PUT,POST,DELETE,PATCH" = resp.body
 }

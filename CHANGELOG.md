@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Converted to use the Gleam build tool.
+
 ## v1.0.3 - 2021-11-17
 
 - Upgraded `gleam_http` to v2.0.2.

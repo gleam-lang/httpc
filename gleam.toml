@@ -1,1 +1,19 @@
 name = "gleam_httpc"
+version = "1.1.0"
+licences = ["Apache-2.0"]
+description = "Gleam bindings to Erlang's built in HTTP client, httpc"
+
+repository = { type = "github", user = "gleam-lang", repo = "httpc" }
+links = [
+  { title = "Website", href = "https://gleam.run" },
+  { title = "Sponsor", href = "https://github.com/sponsors/lpil" },
+]
+
+# TODO: add the ssl and inets applications to the extra OTP app to start
+
+[dependencies]
+gleam_stdlib = "~> 0.18"
+gleam_http = "~> 2.0"
+
+[dev-dependencies]
+gleeunit = "~> 0.1"

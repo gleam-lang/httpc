@@ -38,25 +38,6 @@ pub fn main() {
 
 ## Installation
 
-This package can be installed by adding `gleam_httpc` to your `rebar.config`
-dependencies:
-
-```erlang
-{deps, [
-    gleam_httpc
-]}.
-```
-
-You may also need to add the `gleam_httpc` OTP application to your `.app.src`
-file, depending on how you run your program.
-
-```erlang
-{applications, [
-    kernel,
-    stdlib,
-    ssl,
-    inets,
-    gleam_stdlib,
-    gleam_httpc
-]},
+```shell
+gleam add gleam_httpc
 ```
