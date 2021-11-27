@@ -2,12 +2,19 @@ import gleam/httpc
 import gleam/http.{Get, Head, Options}
 import gleam/list
 import gleeunit
-import hack.{GleamHttpc, Inets, Ssl}
+import gleam/erlang
+import gleam/erlang/atom
 
 pub fn main() {
-  assert Ok(_) = hack.ensure_all_started(Inets)
-  assert Ok(_) = hack.ensure_all_started(Ssl)
-  assert Ok(_) = hack.ensure_all_started(GleamHttpc)
+  // Start the required applications
+  // TODO: Only start gleam_httpc this once this is implemented
+  // https://github.com/gleam-lang/gleam/issues/650
+  assert Ok(_) =
+    ["inets", "ssl", "gleam_httpc"]
+    |> list.map(atom.create_from_string)
+    |> list.try_map(erlang.ensure_all_started)
+
+  // Run the tests
   gleeunit.main()
 }
 

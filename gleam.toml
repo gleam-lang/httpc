@@ -17,3 +17,4 @@ gleam_http = "~> 2.0"
 
 [dev-dependencies]
 gleeunit = "~> 0.1"
+gleam_erlang = "~> 0.4"
