@@ -7,10 +7,10 @@ import gleam/erlang/atom
 
 pub fn main() {
   // Start the required applications
-  // TODO: Only start gleam_httpc this once this is implemented
-  // https://github.com/gleam-lang/gleam/issues/650
   assert Ok(_) =
-    erlang.ensure_all_started(atom.create_from_string("gleam_httpc"))
+    "gleam_httpc"
+    |> atom.create_from_string
+    |> erlang.ensure_all_started
 
   // Run the tests
   gleeunit.main()
