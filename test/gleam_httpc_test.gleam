@@ -10,9 +10,7 @@ pub fn main() {
   // TODO: Only start gleam_httpc this once this is implemented
   // https://github.com/gleam-lang/gleam/issues/650
   assert Ok(_) =
-    ["inets", "ssl", "gleam_httpc"]
-    |> list.map(atom.create_from_string)
-    |> list.try_map(erlang.ensure_all_started)
+    erlang.ensure_all_started(atom.create_from_string("gleam_httpc"))
 
   // Run the tests
   gleeunit.main()

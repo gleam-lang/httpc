@@ -9,7 +9,8 @@ links = [
   { title = "Sponsor", href = "https://github.com/sponsors/lpil" },
 ]
 
-# TODO: add the ssl and inets applications to the extra OTP app to start
+[erlang]
+extra_applications = ["inets", "ssl"]
 
 [dependencies]
 gleam_stdlib = "~> 0.18"
