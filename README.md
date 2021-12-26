@@ -11,7 +11,7 @@ not be secure with this library.
 ```rust
 import gleam/httpc
 import gleam/http.{Get}
-import gleam/should
+import gleeunit/should
 
 pub fn main() {
   // Prepare a HTTP request record
