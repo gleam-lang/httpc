@@ -1,1 +1,2 @@
-*.gleam linguist-language=Rust
+# Gleam is now officially supported by github/linguist
+# *.gleam linguist-language=Rust
