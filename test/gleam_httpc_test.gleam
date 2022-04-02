@@ -1,5 +1,7 @@
 import gleam/httpc
 import gleam/http.{Get, Head, Options}
+import gleam/http/request
+import gleam/http/response
 import gleam/list
 import gleeunit
 import gleam/erlang
@@ -18,59 +20,59 @@ pub fn main() {
 
 pub fn request_test() {
   let req =
-    http.default_req()
-    |> http.set_method(Get)
-    |> http.set_host("test-api.service.hmrc.gov.uk")
-    |> http.set_path("/hello/world")
-    |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
+    request.new()
+    |> request.set_method(Get)
+    |> request.set_host("test-api.service.hmrc.gov.uk")
+    |> request.set_path("/hello/world")
+    |> request.prepend_header("accept", "application/vnd.hmrc.1.0+json")
 
   assert Ok(resp) = httpc.send(req)
   assert 200 = resp.status
-  assert Ok("application/json") = http.get_resp_header(resp, "content-type")
+  assert Ok("application/json") = response.get_header(resp, "content-type")
   assert "{\"message\":\"Hello World\"}" = resp.body
 }
 
 pub fn get_request_discards_body_test() {
   let req =
-    http.default_req()
-    |> http.set_method(Get)
-    |> http.set_host("test-api.service.hmrc.gov.uk")
-    |> http.set_path("/hello/world")
-    |> http.set_req_body("This gets dropped")
-    |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
+    request.new()
+    |> request.set_method(Get)
+    |> request.set_host("test-api.service.hmrc.gov.uk")
+    |> request.set_path("/hello/world")
+    |> request.set_body("This gets dropped")
+    |> request.prepend_header("accept", "application/vnd.hmrc.1.0+json")
 
   assert Ok(resp) = httpc.send(req)
   assert 200 = resp.status
-  assert Ok("application/json") = http.get_resp_header(resp, "content-type")
+  assert Ok("application/json") = response.get_header(resp, "content-type")
   assert "{\"message\":\"Hello World\"}" = resp.body
 }
 
 pub fn head_request_discards_body_test() {
   let req =
-    http.default_req()
-    |> http.set_method(Head)
-    |> http.set_host("postman-echo.com")
-    |> http.set_path("/get")
-    |> http.set_req_body("This gets dropped")
+    request.new()
+    |> request.set_method(Head)
+    |> request.set_host("postman-echo.com")
+    |> request.set_path("/get")
+    |> request.set_body("This gets dropped")
 
   assert Ok(resp) = httpc.send(req)
   assert 200 = resp.status
   assert Ok("application/json; charset=utf-8") =
-    http.get_resp_header(resp, "content-type")
+    response.get_header(resp, "content-type")
   assert "" = resp.body
 }
 
 pub fn options_request_discards_body_test() {
   let req =
-    http.default_req()
-    |> http.set_method(Options)
-    |> http.set_host("postman-echo.com")
-    |> http.set_path("/get")
-    |> http.set_req_body("This gets dropped")
+    request.new()
+    |> request.set_method(Options)
+    |> request.set_host("postman-echo.com")
+    |> request.set_path("/get")
+    |> request.set_body("This gets dropped")
 
   assert Ok(resp) = httpc.send(req)
   assert 200 = resp.status
   assert Ok("text/html; charset=utf-8") =
-    http.get_resp_header(resp, "content-type")
+    response.get_header(resp, "content-type")
   assert "GET,HEAD,PUT,POST,DELETE,PATCH" = resp.body
 }

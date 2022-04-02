@@ -1,5 +1,7 @@
 import gleam/dynamic.{Dynamic}
-import gleam/http.{Method, Request, Response}
+import gleam/http.{Method}
+import gleam/http/response.{Response}
+import gleam/http/request.{Request}
 import gleam/bit_string
 import gleam/result
 import gleam/list
@@ -62,7 +64,7 @@ pub fn send_bits(
 ) -> Result(Response(BitString), Dynamic) {
   let erl_url =
     req
-    |> http.req_to_uri
+    |> request.to_uri
     |> uri.to_string
     |> binary_to_list
   let erl_headers = list.map(req.headers, charlist_header)
@@ -77,7 +79,7 @@ pub fn send_bits(
     _ -> {
       let erl_content_type =
         req
-        |> http.get_req_header("content-type")
+        |> request.get_header("content-type")
         |> result.unwrap("application/octet-stream")
         |> binary_to_list
       let erl_req = #(erl_url, erl_headers, erl_content_type, req.body)
@@ -94,11 +96,11 @@ pub fn send_bits(
 pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
   try resp =
     req
-    |> http.map_req_body(bit_string.from_string)
+    |> request.map(bit_string.from_string)
     |> send_bits
 
   case bit_string.to_string(resp.body) {
-    Ok(body) -> Ok(http.set_resp_body(resp, body))
+    Ok(body) -> Ok(response.set_body(resp, body))
     Error(_) -> Error(dynamic.from("Response body was not valid UTF-8"))
   }
 }
