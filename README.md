@@ -6,7 +6,9 @@
 Bindings to Erlang's built in HTTP client, `httpc`.
 
 **Note:** HTTPC does not verify TLS connections by default. Your connection may
-not be secure with this library.
+not be secure with this library. If you're looking for a more full featured
+Erlang HTTP client you should take a look at
+[hackney](https://github.com/gleam-lang/hackney).
 
 ```gleam
 import gleam/httpc
