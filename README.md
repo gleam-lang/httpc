@@ -13,15 +13,17 @@ Erlang HTTP client you should take a look at
 ```gleam
 import gleam/httpc
 import gleam/http.{Get}
+import gleam/http/request
+import gleam/http/response
 import gleeunit/should
 
 pub fn main() {
   // Prepare a HTTP request record
-  let req = http.default_req()
-    |> http.set_method(Get)
-    |> http.set_host("test-api.service.hmrc.gov.uk")
-    |> http.set_path("/hello/world")
-    |> http.prepend_req_header("accept", "application/vnd.hmrc.1.0+json")
+  let request = request.new()
+    |> request.set_method(Get)
+    |> request.set_host("test-api.service.hmrc.gov.uk")
+    |> request.set_path("/hello/world")
+    |> request.prepend_header("accept", "application/vnd.hmrc.1.0+json")
 
   // Send the HTTP request to the server
   try resp = httpc.send(req)
@@ -31,7 +33,7 @@ pub fn main() {
   |> should.equal(200)
 
   resp
-  |> http.get_resp_header("content-type")
+  |> response.get_header("content-type")
   |> should.equal(Ok("application/json"))
 
   resp.body
