@@ -71,7 +71,7 @@ pub fn send_bits(
   let erl_http_options = []
   let erl_options = [BodyFormat(Binary)]
 
-  try response = case req.method {
+  use response <- result.then(case req.method {
     http.Options | http.Head | http.Get -> {
       let erl_req = #(erl_url, erl_headers)
       erl_request_no_body(req.method, erl_req, erl_http_options, erl_options)
@@ -85,7 +85,7 @@ pub fn send_bits(
       let erl_req = #(erl_url, erl_headers, erl_content_type, req.body)
       erl_request(req.method, erl_req, erl_http_options, erl_options)
     }
-  }
+  })
 
   let #(#(_version, status, _status), headers, resp_body) = response
   Ok(Response(status, list.map(headers, string_header), resp_body))
@@ -94,10 +94,11 @@ pub fn send_bits(
 // TODO: test
 // TODO: refine error type
 pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
-  try resp =
+  use resp <- result.then(
     req
     |> request.map(bit_string.from_string)
-    |> send_bits
+    |> send_bits,
+  )
 
   case bit_string.to_string(resp.body) {
     Ok(body) -> Ok(response.set_body(resp, body))

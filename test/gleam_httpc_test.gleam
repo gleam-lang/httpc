@@ -9,7 +9,7 @@ import gleam/erlang/atom
 
 pub fn main() {
   // Start the required applications
-  assert Ok(_) =
+  let assert Ok(_) =
     "gleam_httpc"
     |> atom.create_from_string
     |> erlang.ensure_all_started
@@ -26,10 +26,10 @@ pub fn request_test() {
     |> request.set_path("/hello/world")
     |> request.prepend_header("accept", "application/vnd.hmrc.1.0+json")
 
-  assert Ok(resp) = httpc.send(req)
-  assert 200 = resp.status
-  assert Ok("application/json") = response.get_header(resp, "content-type")
-  assert "{\"message\":\"Hello World\"}" = resp.body
+  let assert Ok(resp) = httpc.send(req)
+  let assert 200 = resp.status
+  let assert Ok("application/json") = response.get_header(resp, "content-type")
+  let assert "{\"message\":\"Hello World\"}" = resp.body
 }
 
 pub fn get_request_discards_body_test() {
@@ -41,10 +41,10 @@ pub fn get_request_discards_body_test() {
     |> request.set_body("This gets dropped")
     |> request.prepend_header("accept", "application/vnd.hmrc.1.0+json")
 
-  assert Ok(resp) = httpc.send(req)
-  assert 200 = resp.status
-  assert Ok("application/json") = response.get_header(resp, "content-type")
-  assert "{\"message\":\"Hello World\"}" = resp.body
+  let assert Ok(resp) = httpc.send(req)
+  let assert 200 = resp.status
+  let assert Ok("application/json") = response.get_header(resp, "content-type")
+  let assert "{\"message\":\"Hello World\"}" = resp.body
 }
 
 pub fn head_request_discards_body_test() {
@@ -55,11 +55,11 @@ pub fn head_request_discards_body_test() {
     |> request.set_path("/get")
     |> request.set_body("This gets dropped")
 
-  assert Ok(resp) = httpc.send(req)
-  assert 200 = resp.status
-  assert Ok("application/json; charset=utf-8") =
+  let assert Ok(resp) = httpc.send(req)
+  let assert 200 = resp.status
+  let assert Ok("application/json; charset=utf-8") =
     response.get_header(resp, "content-type")
-  assert "" = resp.body
+  let assert "" = resp.body
 }
 
 pub fn options_request_discards_body_test() {
@@ -70,9 +70,9 @@ pub fn options_request_discards_body_test() {
     |> request.set_path("/get")
     |> request.set_body("This gets dropped")
 
-  assert Ok(resp) = httpc.send(req)
-  assert 200 = resp.status
-  assert Ok("text/html; charset=utf-8") =
+  let assert Ok(resp) = httpc.send(req)
+  let assert 200 = resp.status
+  let assert Ok("text/html; charset=utf-8") =
     response.get_header(resp, "content-type")
-  assert "GET,HEAD,PUT,POST,DELETE,PATCH" = resp.body
+  let assert "GET,HEAD,PUT,POST,DELETE,PATCH" = resp.body
 }

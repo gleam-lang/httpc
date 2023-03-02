@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.1 - 2023-03-02
+
+- Updated for Gleam v0.27.0
+
 ## v2.0.0 - 2022-04-03
 
 - Upgraded `gleam_http` to v3.0.0. #25
