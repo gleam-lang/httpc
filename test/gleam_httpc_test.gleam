@@ -2,7 +2,6 @@ import gleam/httpc
 import gleam/http.{Get, Head, Options}
 import gleam/http/request
 import gleam/http/response
-import gleam/list
 import gleeunit
 import gleam/erlang
 import gleam/erlang/atom

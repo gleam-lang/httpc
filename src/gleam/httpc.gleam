@@ -7,15 +7,15 @@ import gleam/result
 import gleam/list
 import gleam/uri
 
-external type Charlist
+type Charlist
 
-external fn binary_to_list(String) -> Charlist =
-  "erlang" "binary_to_list"
+@external(erlang, "erlang", "binary_to_list")
+fn binary_to_list(a: String) -> Charlist
 
-external fn list_to_binary(Charlist) -> String =
-  "erlang" "list_to_binary"
+@external(erlang, "erlang", "list_to_binary")
+fn list_to_binary(a: Charlist) -> String
 
-external type ErlHttpOption
+type ErlHttpOption
 
 type BodyFormat {
   Binary
@@ -25,27 +25,27 @@ type ErlOption {
   BodyFormat(BodyFormat)
 }
 
-external fn erl_request(
-  Method,
-  #(Charlist, List(#(Charlist, Charlist)), Charlist, BitString),
-  List(ErlHttpOption),
-  List(ErlOption),
+@external(erlang, "httpc", "request")
+fn erl_request(
+  a: Method,
+  b: #(Charlist, List(#(Charlist, Charlist)), Charlist, BitString),
+  c: List(ErlHttpOption),
+  d: List(ErlOption),
 ) -> Result(
   #(#(Charlist, Int, Charlist), List(#(Charlist, Charlist)), BitString),
   Dynamic,
-) =
-  "httpc" "request"
+)
 
-external fn erl_request_no_body(
-  Method,
-  #(Charlist, List(#(Charlist, Charlist))),
-  List(ErlHttpOption),
-  List(ErlOption),
+@external(erlang, "httpc", "request")
+fn erl_request_no_body(
+  a: Method,
+  b: #(Charlist, List(#(Charlist, Charlist))),
+  c: List(ErlHttpOption),
+  d: List(ErlOption),
 ) -> Result(
   #(#(Charlist, Int, Charlist), List(#(Charlist, Charlist)), BitString),
   Dynamic,
-) =
-  "httpc" "request"
+)
 
 fn charlist_header(header: #(String, String)) -> #(Charlist, Charlist) {
   let #(k, v) = header
