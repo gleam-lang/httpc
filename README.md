@@ -5,11 +5,6 @@
 
 Bindings to Erlang's built in HTTP client, `httpc`.
 
-**Note:** HTTPC does not verify TLS connections by default. Your connection may
-not be secure with this library. If you're looking for a more full featured
-Erlang HTTP client you should take a look at
-[hackney](https://github.com/gleam-lang/hackney).
-
 ```gleam
 import gleam/httpc
 import gleam/http.{Get}
@@ -48,3 +43,10 @@ pub fn main() {
 ```shell
 gleam add gleam_httpc
 ```
+
+## Use with Erlang/OTP versions older than 26.0
+
+Older versions of HTTPC do not verify TLS connections by default, so with them
+your connection may not be secure when using this library. Consider upgrading to
+a newer version of Erlang/OTP, or using a different HTTP client such as
+[hackney](https://github.com/gleam-lang/hackney).
