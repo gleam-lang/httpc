@@ -10,6 +10,7 @@ import gleam/httpc
 import gleam/http.{Get}
 import gleam/http/request
 import gleam/http/response
+import gleam/result
 import gleeunit/should
 
 pub fn main() {
@@ -18,7 +19,7 @@ pub fn main() {
     request.to("https://test-api.service.hmrc.gov.uk/hello/world")
 
   // Send the HTTP request to the server
-  try resp = httpc.send(req)
+  use resp <- result.try(httpc.send(req))
 
   // We get a response record back
   resp.status
