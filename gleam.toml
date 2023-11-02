@@ -1,5 +1,5 @@
 name = "gleam_httpc"
-version = "2.1.0"
+version = "2.1.1"
 gleam = ">= 0.32.0"
 
 licences = ["Apache-2.0"]
