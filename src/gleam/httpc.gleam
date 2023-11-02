@@ -1,8 +1,8 @@
-import gleam/dynamic.{Dynamic}
-import gleam/http.{Method}
-import gleam/http/response.{Response}
-import gleam/http/request.{Request}
-import gleam/bit_string
+import gleam/dynamic.{type Dynamic}
+import gleam/http.{type Method}
+import gleam/http/response.{type Response, Response}
+import gleam/http/request.{type Request}
+import gleam/bit_array
 import gleam/result
 import gleam/list
 import gleam/uri
@@ -28,11 +28,11 @@ type ErlOption {
 @external(erlang, "httpc", "request")
 fn erl_request(
   a: Method,
-  b: #(Charlist, List(#(Charlist, Charlist)), Charlist, BitString),
+  b: #(Charlist, List(#(Charlist, Charlist)), Charlist, BitArray),
   c: List(ErlHttpOption),
   d: List(ErlOption),
 ) -> Result(
-  #(#(Charlist, Int, Charlist), List(#(Charlist, Charlist)), BitString),
+  #(#(Charlist, Int, Charlist), List(#(Charlist, Charlist)), BitArray),
   Dynamic,
 )
 
@@ -43,7 +43,7 @@ fn erl_request_no_body(
   c: List(ErlHttpOption),
   d: List(ErlOption),
 ) -> Result(
-  #(#(Charlist, Int, Charlist), List(#(Charlist, Charlist)), BitString),
+  #(#(Charlist, Int, Charlist), List(#(Charlist, Charlist)), BitArray),
   Dynamic,
 )
 
@@ -59,9 +59,7 @@ fn string_header(header: #(Charlist, Charlist)) -> #(String, String) {
 
 // TODO: test
 // TODO: refine error type
-pub fn send_bits(
-  req: Request(BitString),
-) -> Result(Response(BitString), Dynamic) {
+pub fn send_bits(req: Request(BitArray)) -> Result(Response(BitArray), Dynamic) {
   let erl_url =
     req
     |> request.to_uri
@@ -96,11 +94,11 @@ pub fn send_bits(
 pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
   use resp <- result.then(
     req
-    |> request.map(bit_string.from_string)
+    |> request.map(bit_array.from_string)
     |> send_bits,
   )
 
-  case bit_string.to_string(resp.body) {
+  case bit_array.to_string(resp.body) {
     Ok(body) -> Ok(response.set_body(resp, body))
     Error(_) -> Error(dynamic.from("Response body was not valid UTF-8"))
   }

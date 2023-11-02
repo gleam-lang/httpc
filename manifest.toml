@@ -2,14 +2,14 @@
 # You typically do not need to edit this file
 
 packages = [
-  { name = "gleam_erlang", version = "0.20.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_erlang", source = "hex", outer_checksum = "F216A80C8FDFF774447B494D5E08AE4E9A911E971727B9A78FEBF5F300914584" },
-  { name = "gleam_http", version = "3.4.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_http", source = "hex", outer_checksum = "B6EB76D304E0E66267485983E6B7BC28F3BFA6795BB2BF90FC411F6903AF6A1A" },
-  { name = "gleam_stdlib", version = "0.30.0", build_tools = ["gleam"], requirements = [], otp_app = "gleam_stdlib", source = "hex", outer_checksum = "03710B3DA047A3683117591707FCA19D32B980229DD8CE8B0603EB5B5144F6C3" },
-  { name = "gleeunit", version = "0.10.1", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleeunit", source = "hex", outer_checksum = "ECEA2DE4BE6528D36AFE74F42A21CDF99966EC36D7F25DEB34D47DD0F7977BAF" },
+  { name = "gleam_erlang", version = "0.22.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_erlang", source = "hex", outer_checksum = "367D8B41A7A86809928ED1E7E55BFD0D46D7C4CF473440190F324AFA347109B4" },
+  { name = "gleam_http", version = "3.5.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_http", source = "hex", outer_checksum = "FAE9AE3EB1CA90C2194615D20FFFD1E28B630E84DACA670B28D959B37BCBB02C" },
+  { name = "gleam_stdlib", version = "0.32.0", build_tools = ["gleam"], requirements = [], otp_app = "gleam_stdlib", source = "hex", outer_checksum = "07D64C26D014CF570F8ACADCE602761EA2E74C842D26F2FD49B0D61973D9966F" },
+  { name = "gleeunit", version = "0.11.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleeunit", source = "hex", outer_checksum = "1397E5C4AC4108769EE979939AC39BF7870659C5AFB714630DEEEE16B8272AD5" },
 ]
 
 [requirements]
 gleam_erlang = { version = "~> 0.9" }
 gleam_http = { version = "~> 3.0" }
-gleam_stdlib = { version = "~> 0.20" }
+gleam_stdlib = { version = "~> 0.32" }
 gleeunit = { version = "~> 0.6" }
