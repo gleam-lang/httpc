@@ -1,5 +1,5 @@
 name = "gleam_httpc"
-version = "2.1.1"
+version = "2.1.2"
 gleam = ">= 0.32.0"
 
 licences = ["Apache-2.0"]
@@ -15,9 +15,9 @@ links = [
 extra_applications = ["inets", "ssl"]
 
 [dependencies]
-gleam_stdlib = "~> 0.32"
+gleam_stdlib = "~> 0.32 or ~> 1.0"
 gleam_http = "~> 3.0"
 
 [dev-dependencies]
-gleeunit = "~> 0.6"
+gleeunit = "~> 1.0"
 gleam_erlang = "~> 0.9"
