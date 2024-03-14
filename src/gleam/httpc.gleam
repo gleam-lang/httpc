@@ -1,10 +1,10 @@
+import gleam/bit_array
 import gleam/dynamic.{type Dynamic}
 import gleam/http.{type Method}
-import gleam/http/response.{type Response, Response}
 import gleam/http/request.{type Request}
-import gleam/bit_array
-import gleam/result
+import gleam/http/response.{type Response, Response}
 import gleam/list
+import gleam/result
 import gleam/uri
 
 type Charlist
@@ -15,7 +15,9 @@ fn binary_to_list(a: String) -> Charlist
 @external(erlang, "erlang", "list_to_binary")
 fn list_to_binary(a: Charlist) -> String
 
-type ErlHttpOption
+type ErlHttpOption {
+  Ssl(List(ErlSslOption))
+}
 
 type BodyFormat {
   Binary
@@ -23,6 +25,14 @@ type BodyFormat {
 
 type ErlOption {
   BodyFormat(BodyFormat)
+}
+
+type ErlSslOption {
+  Verify(ErlVerifyOption)
+}
+
+type ErlVerifyOption {
+  VerifyNone
 }
 
 @external(erlang, "httpc", "request")
@@ -57,16 +67,31 @@ fn string_header(header: #(Charlist, Charlist)) -> #(String, String) {
   #(list_to_binary(k), list_to_binary(v))
 }
 
+// TODO: document
 // TODO: test
 // TODO: refine error type
 pub fn send_bits(req: Request(BitArray)) -> Result(Response(BitArray), Dynamic) {
+  configure()
+  |> dispatch_bits(req)
+}
+
+// TODO: document
+// TODO: test
+// TODO: refine error type
+pub fn dispatch_bits(
+  config: Configuration,
+  req: Request(BitArray),
+) -> Result(Response(BitArray), Dynamic) {
   let erl_url =
     req
     |> request.to_uri
     |> uri.to_string
     |> binary_to_list
   let erl_headers = list.map(req.headers, charlist_header)
-  let erl_http_options = []
+  let erl_http_options = case config.verify_tls {
+    True -> []
+    False -> [Ssl([Verify(VerifyNone)])]
+  }
   let erl_options = [BodyFormat(Binary)]
 
   use response <- result.then(case req.method {
@@ -89,17 +114,38 @@ pub fn send_bits(req: Request(BitArray)) -> Result(Response(BitArray), Dynamic) 
   Ok(Response(status, list.map(headers, string_header), resp_body))
 }
 
-// TODO: test
-// TODO: refine error type
-pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
-  use resp <- result.then(
-    req
-    |> request.map(bit_array.from_string)
-    |> send_bits,
-  )
+// TODO:: document
+pub opaque type Configuration {
+  Builder(verify_tls: Bool)
+}
+
+// TODO:: document
+pub fn configure() -> Configuration {
+  Builder(verify_tls: True)
+}
+
+// TODO:: document
+// TODO:: test True
+// TODO:: test False
+pub fn verify_tls(_config: Configuration, which: Bool) -> Configuration {
+  Builder(verify_tls: which)
+}
+
+pub fn dispatch(
+  config: Configuration,
+  request: Request(String),
+) -> Result(Response(String), Dynamic) {
+  let request = request.map(request, bit_array.from_string)
+  use resp <- result.try(dispatch_bits(config, request))
 
   case bit_array.to_string(resp.body) {
     Ok(body) -> Ok(response.set_body(resp, body))
     Error(_) -> Error(dynamic.from("Response body was not valid UTF-8"))
   }
+}
+
+// TODO: refine error type
+pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
+  configure()
+  |> dispatch(req)
 }
