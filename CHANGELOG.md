@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added the `dispatch`, `dispatch_bits`, `verify_tls`, and `configure`
+  functions.
+
 ## v2.1.2 - 2024-01-16
 
 - Relaxed the Gleam stdlib version requirement to permit 0.x or 1.x.
