@@ -1,19 +1,10 @@
-import gleam/httpc
 import gleam/http.{Get, Head, Options}
 import gleam/http/request
 import gleam/http/response
+import gleam/httpc
 import gleeunit
-import gleam/erlang
-import gleam/erlang/atom
 
 pub fn main() {
-  // Start the required applications
-  let assert Ok(_) =
-    "gleam_httpc"
-    |> atom.create_from_string
-    |> erlang.ensure_all_started
-
-  // Run the tests
   gleeunit.main()
 }
 
@@ -74,4 +65,19 @@ pub fn options_request_discards_body_test() {
   let assert Ok("text/html; charset=utf-8") =
     response.get_header(resp, "content-type")
   let assert "GET,HEAD,PUT,POST,DELETE,PATCH" = resp.body
+}
+
+pub fn invalid_tls_test() {
+  let assert Ok(req) = request.to("https://expired.badssl.com")
+
+  // This will fail because of invalid TLS
+  let assert Error(_e) = httpc.send(req)
+  // TODO: refine error type!
+  // io.debug(e)
+
+  let assert Ok(response) =
+    httpc.configure()
+    |> httpc.verify_tls(False)
+    |> httpc.dispatch(req)
+  let assert 200 = response.status
 }
