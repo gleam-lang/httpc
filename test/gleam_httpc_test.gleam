@@ -72,8 +72,12 @@ pub fn invalid_tls_test() {
 
   // This will fail because of invalid TLS
   let assert Error(_e) = httpc.send(req)
-  // TODO: refine error type!
-  // io.debug(e)
+
+  // This will fail because of invalid TLS
+  let assert Error(_e) =
+    httpc.configure()
+    |> httpc.verify_tls(True)
+    |> httpc.dispatch(req)
 
   let assert Ok(response) =
     httpc.configure()
