@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v2.2.0 - 2024-02-19
 
 - Added the `dispatch`, `dispatch_bits`, `verify_tls`, and `configure`
   functions.
