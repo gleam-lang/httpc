@@ -67,7 +67,6 @@ fn string_header(header: #(Charlist, Charlist)) -> #(String, String) {
   #(list_to_binary(k), list_to_binary(v))
 }
 
-// TODO: test
 // TODO: refine error type
 /// Send a HTTP request of binary data using the default configuration.
 ///
@@ -78,7 +77,6 @@ pub fn send_bits(req: Request(BitArray)) -> Result(Response(BitArray), Dynamic) 
   |> dispatch_bits(req)
 }
 
-// TODO: test
 // TODO: refine error type
 /// Send a HTTP request of binary data.
 ///
@@ -118,12 +116,27 @@ pub fn dispatch_bits(
   Ok(Response(status, list.map(headers, string_header), resp_body))
 }
 
-// TODO:: document
+/// Configuration that can be used to send HTTP requests.
+///
+/// To be used with `dispatch` and `dispatch_bits`.
+///
 pub opaque type Configuration {
-  Builder(verify_tls: Bool)
+  Builder(
+    /// Whether to verify the TLS certificate of the server.
+    ///
+    /// This defaults to `True`, meaning that the TLS certificate will be verified
+    /// unless you call this function with `False`.
+    ///
+    /// Setting this to `False` can make your application vulnerable to
+    /// man-in-the-middle attacks and other security risks. Do not do this unless
+    /// you are sure and you understand the risks.
+    ///
+    verify_tls: Bool,
+  )
 }
 
-// TODO:: document
+/// Create a new configuration with the default settings.
+///
 pub fn configure() -> Configuration {
   Builder(verify_tls: True)
 }
