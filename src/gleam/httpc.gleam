@@ -67,17 +67,21 @@ fn string_header(header: #(Charlist, Charlist)) -> #(String, String) {
   #(list_to_binary(k), list_to_binary(v))
 }
 
-// TODO: document
 // TODO: test
 // TODO: refine error type
+/// Send a HTTP request of binary data using the default configuration.
+///
+/// If you wish to use some other configuration use `dispatch_bits` instead.
+///
 pub fn send_bits(req: Request(BitArray)) -> Result(Response(BitArray), Dynamic) {
   configure()
   |> dispatch_bits(req)
 }
 
-// TODO: document
 // TODO: test
 // TODO: refine error type
+/// Send a HTTP request of binary data.
+///
 pub fn dispatch_bits(
   config: Configuration,
   req: Request(BitArray),
@@ -124,13 +128,21 @@ pub fn configure() -> Configuration {
   Builder(verify_tls: True)
 }
 
-// TODO:: document
-// TODO:: test True
-// TODO:: test False
+/// Set whether to verify the TLS certificate of the server.
+///
+/// This defaults to `True`, meaning that the TLS certificate will be verified
+/// unless you call this function with `False`.
+///
+/// Setting this to `False` can make your application vulnerable to
+/// man-in-the-middle attacks and other security risks. Do not do this unless
+/// you are sure and you understand the risks.
+///
 pub fn verify_tls(_config: Configuration, which: Bool) -> Configuration {
   Builder(verify_tls: which)
 }
 
+/// Send a HTTP request of unicode data.
+///
 pub fn dispatch(
   config: Configuration,
   request: Request(String),
@@ -145,6 +157,10 @@ pub fn dispatch(
 }
 
 // TODO: refine error type
+/// Send a HTTP request of unicode data using the default configuration.
+///
+/// If you wish to use some other configuration use `dispatch` instead.
+///
 pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
   configure()
   |> dispatch(req)
