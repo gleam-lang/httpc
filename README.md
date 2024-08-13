@@ -6,17 +6,21 @@
 Bindings to Erlang's built in HTTP client, `httpc`.
 
 ```gleam
-import gleam/httpc
-import gleam/http.{Get}
 import gleam/http/request
 import gleam/http/response
+import gleam/httpc
 import gleam/result
 import gleeunit/should
 
-pub fn send_request() {
+pub fn main() {
   // Prepare a HTTP request record
   let assert Ok(req) =
     request.to("https://test-api.service.hmrc.gov.uk/hello/world")
+    |> result.map(request.prepend_header(
+      _,
+      "accept",
+      "application/vnd.hmrc.1.0+json",
+    ))
 
   // Send the HTTP request to the server
   use resp <- result.try(httpc.send(req))
