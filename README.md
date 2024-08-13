@@ -12,7 +12,7 @@ import gleam/httpc
 import gleam/result
 import gleeunit/should
 
-pub fn main() {
+pub fn send_request() {
   // Prepare a HTTP request record
   let assert Ok(req) =
     request.to("https://test-api.service.hmrc.gov.uk/hello/world")
