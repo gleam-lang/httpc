@@ -14,7 +14,7 @@ import gleeunit/should
 
 pub fn send_request() {
   // Prepare a HTTP request record
-    let assert Ok(base_req) =
+  let assert Ok(base_req) =
     request.to("https://test-api.service.hmrc.gov.uk/hello/world")
 
   let req =
