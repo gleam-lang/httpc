@@ -14,13 +14,12 @@ import gleeunit/should
 
 pub fn send_request() {
   // Prepare a HTTP request record
-  let assert Ok(req) =
+    let assert Ok(base_req) =
     request.to("https://test-api.service.hmrc.gov.uk/hello/world")
-    |> result.map(request.prepend_header(
-      _,
-      "accept",
-      "application/vnd.hmrc.1.0+json",
-    ))
+
+  let req =
+    base_req
+    |> request.prepend_header("accept", "application/vnd.hmrc.1.0+json")
 
   // Send the HTTP request to the server
   use resp <- result.try(httpc.send(req))
