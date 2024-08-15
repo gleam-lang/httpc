@@ -18,8 +18,7 @@ pub fn send_request() {
     request.to("https://test-api.service.hmrc.gov.uk/hello/world")
 
   let req =
-    base_req
-    |> request.prepend_header("accept", "application/vnd.hmrc.1.0+json")
+    request.prepend_header(base_req, "accept", "application/vnd.hmrc.1.0+json")
 
   // Send the HTTP request to the server
   use resp <- result.try(httpc.send(req))
