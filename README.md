@@ -5,6 +5,9 @@
 
 Bindings to Erlang's built in HTTP client, `httpc`.
 
+```shell
+gleam add gleam_httpc@2
+```
 ```gleam
 import gleam/http/request
 import gleam/http/response
@@ -36,12 +39,6 @@ pub fn send_request() {
 
   Ok(resp)
 }
-```
-
-## Installation
-
-```shell
-gleam add gleam_httpc
 ```
 
 ## Use with Erlang/OTP versions older than 26.0
