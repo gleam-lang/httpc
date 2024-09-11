@@ -85,3 +85,10 @@ pub fn invalid_tls_test() {
     |> httpc.dispatch(req)
   let assert 200 = response.status
 }
+
+pub fn ipv6_test() {
+  // This URL is ipv6 only
+  let assert Ok(req) = request.to("https://ipv6.google.com")
+  let assert Ok(resp) = httpc.send(req)
+  let assert 200 = resp.status
+}
