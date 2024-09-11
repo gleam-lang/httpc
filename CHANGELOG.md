@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added transparent support for IPv6.
+
+## v2.2.0 - 2024-04-19
+
 - Added the `dispatch`, `dispatch_bits`, `verify_tls`, and `configure`
   functions.
 
