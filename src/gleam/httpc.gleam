@@ -25,6 +25,15 @@ type BodyFormat {
 
 type ErlOption {
   BodyFormat(BodyFormat)
+  SocketOpts(List(SocketOpt))
+}
+
+type SocketOpt {
+  Ipfamily(Inet6fb4)
+}
+
+type Inet6fb4 {
+  Inet6fb4
 }
 
 type ErlSslOption {
@@ -94,7 +103,7 @@ pub fn dispatch_bits(
     True -> []
     False -> [Ssl([Verify(VerifyNone)])]
   }
-  let erl_options = [BodyFormat(Binary)]
+  let erl_options = [BodyFormat(Binary), SocketOpts([Ipfamily(Inet6fb4)])]
 
   use response <- result.then(case req.method {
     http.Options | http.Head | http.Get -> {
