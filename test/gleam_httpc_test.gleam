@@ -92,3 +92,10 @@ pub fn ipv6_test() {
   let assert Ok(resp) = httpc.send(req)
   let assert 200 = resp.status
 }
+
+pub fn autoredirect_test() {
+  // This redirects to https://
+  let assert Ok(req) = request.to("http://packages.gleam.run")
+  let assert Ok(resp) = httpc.send(req)
+  let assert 301 = resp.status
+}

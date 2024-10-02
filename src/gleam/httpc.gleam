@@ -17,6 +17,7 @@ fn list_to_binary(a: Charlist) -> String
 
 type ErlHttpOption {
   Ssl(List(ErlSslOption))
+  Autoredirect(Bool)
 }
 
 type BodyFormat {
@@ -99,9 +100,10 @@ pub fn dispatch_bits(
     |> uri.to_string
     |> binary_to_list
   let erl_headers = list.map(req.headers, charlist_header)
+  let erl_http_options = [Autoredirect(False)]
   let erl_http_options = case config.verify_tls {
-    True -> []
-    False -> [Ssl([Verify(VerifyNone)])]
+    True -> erl_http_options
+    False -> [Ssl([Verify(VerifyNone)]), ..erl_http_options]
   }
   let erl_options = [BodyFormat(Binary), SocketOpts([Ipfamily(Inet6fb4)])]
 
