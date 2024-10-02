@@ -2,6 +2,7 @@ import gleam/http.{Get, Head, Options}
 import gleam/http/request
 import gleam/http/response
 import gleam/httpc
+import gleam/string
 import gleeunit
 
 pub fn main() {
@@ -98,4 +99,17 @@ pub fn autoredirect_test() {
   let assert Ok(req) = request.to("http://packages.gleam.run")
   let assert Ok(resp) = httpc.send(req)
   let assert 301 = resp.status
+}
+
+pub fn default_user_agent_test() {
+  let assert Ok(req) = request.to("https://echo.free.beeceptor.com")
+  let assert Ok(resp) = httpc.send(req)
+  let assert True = string.contains(resp.body, "\"User-Agent\": \"gleam_httpc/")
+}
+
+pub fn custom_user_agent_test() {
+  let assert Ok(req) = request.to("https://echo.free.beeceptor.com")
+  let assert Ok(resp) =
+    httpc.send(request.set_header(req, "user-agent", "gleam-test"))
+  let assert True = string.contains(resp.body, "\"User-Agent\": \"gleam-test")
 }

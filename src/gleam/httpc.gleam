@@ -1,5 +1,6 @@
 import gleam/bit_array
 import gleam/dynamic.{type Dynamic}
+import gleam/erlang/charlist.{type Charlist}
 import gleam/http.{type Method}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response, Response}
@@ -7,13 +8,8 @@ import gleam/list
 import gleam/result
 import gleam/uri
 
-type Charlist
-
-@external(erlang, "erlang", "binary_to_list")
-fn binary_to_list(a: String) -> Charlist
-
-@external(erlang, "erlang", "list_to_binary")
-fn list_to_binary(a: Charlist) -> String
+@external(erlang, "gleam_httpc_ffi", "default_user_agent")
+fn default_user_agent() -> #(Charlist, Charlist)
 
 type ErlHttpOption {
   Ssl(List(ErlSslOption))
@@ -67,14 +63,9 @@ fn erl_request_no_body(
   Dynamic,
 )
 
-fn charlist_header(header: #(String, String)) -> #(Charlist, Charlist) {
-  let #(k, v) = header
-  #(binary_to_list(k), binary_to_list(v))
-}
-
 fn string_header(header: #(Charlist, Charlist)) -> #(String, String) {
   let #(k, v) = header
-  #(list_to_binary(k), list_to_binary(v))
+  #(charlist.to_string(k), charlist.to_string(v))
 }
 
 // TODO: refine error type
@@ -98,8 +89,8 @@ pub fn dispatch_bits(
     req
     |> request.to_uri
     |> uri.to_string
-    |> binary_to_list
-  let erl_headers = list.map(req.headers, charlist_header)
+    |> charlist.from_string
+  let erl_headers = prepare_headers(req.headers)
   let erl_http_options = [Autoredirect(False)]
   let erl_http_options = case config.verify_tls {
     True -> erl_http_options
@@ -117,7 +108,7 @@ pub fn dispatch_bits(
         req
         |> request.get_header("content-type")
         |> result.unwrap("application/octet-stream")
-        |> binary_to_list
+        |> charlist.from_string
       let erl_req = #(erl_url, erl_headers, erl_content_type, req.body)
       erl_request(req.method, erl_req, erl_http_options, erl_options)
     }
@@ -188,4 +179,26 @@ pub fn dispatch(
 pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
   configure()
   |> dispatch(req)
+}
+
+fn prepare_headers(
+  headers: List(#(String, String)),
+) -> List(#(Charlist, Charlist)) {
+  prepare_headers_loop(headers, [], False)
+}
+
+fn prepare_headers_loop(
+  in: List(#(String, String)),
+  out: List(#(Charlist, Charlist)),
+  user_agent_set: Bool,
+) -> List(#(Charlist, Charlist)) {
+  case in {
+    [] if user_agent_set -> out
+    [] -> [default_user_agent(), ..out]
+    [#(k, v), ..in] -> {
+      let user_agent_set = user_agent_set || k == "user-agent"
+      let out = [#(charlist.from_string(k), charlist.from_string(v)), ..out]
+      prepare_headers_loop(in, out, user_agent_set)
+    }
+  }
 }
