@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Redirects are no longer automatically followed.
+
+## v2.3.0 - 2024-08-11
+
 - Added transparent support for IPv6.
 
 ## v2.2.0 - 2024-04-19
