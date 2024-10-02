@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## v3.0.0 - 2024-10-02
 
+- A default user agent is set if a request doesn't have now.
 - Redirects are no longer automatically followed.
 
 ## v2.3.0 - 2024-08-11
