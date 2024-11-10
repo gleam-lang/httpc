@@ -8,8 +8,21 @@ import gleam/list
 import gleam/result
 import gleam/uri
 
+pub type HttpError {
+  InvalidUtf8Response
+  FailedToConnect(ip4: ConnectError, ip6: ConnectError)
+}
+
+pub type ConnectError {
+  Posix(code: String)
+  TlsAlert(code: String, detail: String)
+}
+
 @external(erlang, "gleam_httpc_ffi", "default_user_agent")
 fn default_user_agent() -> #(Charlist, Charlist)
+
+@external(erlang, "gleam_httpc_ffi", "normalise_error")
+fn normalise_error(error: Dynamic) -> HttpError
 
 type ErlHttpOption {
   Ssl(List(ErlSslOption))
@@ -73,7 +86,9 @@ fn string_header(header: #(Charlist, Charlist)) -> #(String, String) {
 ///
 /// If you wish to use some other configuration use `dispatch_bits` instead.
 ///
-pub fn send_bits(req: Request(BitArray)) -> Result(Response(BitArray), Dynamic) {
+pub fn send_bits(
+  req: Request(BitArray),
+) -> Result(Response(BitArray), HttpError) {
   configure()
   |> dispatch_bits(req)
 }
@@ -84,7 +99,7 @@ pub fn send_bits(req: Request(BitArray)) -> Result(Response(BitArray), Dynamic) 
 pub fn dispatch_bits(
   config: Configuration,
   req: Request(BitArray),
-) -> Result(Response(BitArray), Dynamic) {
+) -> Result(Response(BitArray), HttpError) {
   let erl_url =
     req
     |> request.to_uri
@@ -98,21 +113,24 @@ pub fn dispatch_bits(
   }
   let erl_options = [BodyFormat(Binary), SocketOpts([Ipfamily(Inet6fb4)])]
 
-  use response <- result.then(case req.method {
-    http.Options | http.Head | http.Get -> {
-      let erl_req = #(erl_url, erl_headers)
-      erl_request_no_body(req.method, erl_req, erl_http_options, erl_options)
+  use response <- result.then(
+    case req.method {
+      http.Options | http.Head | http.Get -> {
+        let erl_req = #(erl_url, erl_headers)
+        erl_request_no_body(req.method, erl_req, erl_http_options, erl_options)
+      }
+      _ -> {
+        let erl_content_type =
+          req
+          |> request.get_header("content-type")
+          |> result.unwrap("application/octet-stream")
+          |> charlist.from_string
+        let erl_req = #(erl_url, erl_headers, erl_content_type, req.body)
+        erl_request(req.method, erl_req, erl_http_options, erl_options)
+      }
     }
-    _ -> {
-      let erl_content_type =
-        req
-        |> request.get_header("content-type")
-        |> result.unwrap("application/octet-stream")
-        |> charlist.from_string
-      let erl_req = #(erl_url, erl_headers, erl_content_type, req.body)
-      erl_request(req.method, erl_req, erl_http_options, erl_options)
-    }
-  })
+    |> result.map_error(normalise_error),
+  )
 
   let #(#(_version, status, _status), headers, resp_body) = response
   Ok(Response(status, list.map(headers, string_header), resp_body))
@@ -161,13 +179,13 @@ pub fn verify_tls(_config: Configuration, which: Bool) -> Configuration {
 pub fn dispatch(
   config: Configuration,
   request: Request(String),
-) -> Result(Response(String), Dynamic) {
+) -> Result(Response(String), HttpError) {
   let request = request.map(request, bit_array.from_string)
   use resp <- result.try(dispatch_bits(config, request))
 
   case bit_array.to_string(resp.body) {
     Ok(body) -> Ok(response.set_body(resp, body))
-    Error(_) -> Error(dynamic.from("Response body was not valid UTF-8"))
+    Error(_) -> Error(InvalidUtf8Response)
   }
 }
 
@@ -176,7 +194,7 @@ pub fn dispatch(
 ///
 /// If you wish to use some other configuration use `dispatch` instead.
 ///
-pub fn send(req: Request(String)) -> Result(Response(String), Dynamic) {
+pub fn send(req: Request(String)) -> Result(Response(String), HttpError) {
   configure()
   |> dispatch(req)
 }

@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.0.0 - 2024-11-10
+
+- The `HttpError` type has been introduced and is now used by the send
+  functions.
+
 ## v3.0.0 - 2024-10-02
 
 - A default user agent is set if a request doesn't have now.

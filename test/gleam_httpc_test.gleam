@@ -72,10 +72,16 @@ pub fn invalid_tls_test() {
   let assert Ok(req) = request.to("https://expired.badssl.com")
 
   // This will fail because of invalid TLS
-  let assert Error(_e) = httpc.send(req)
+  let assert Error(httpc.FailedToConnect(
+    ip4: httpc.TlsAlert("certificate_expired", _),
+    ip6: _,
+  )) = httpc.send(req)
 
   // This will fail because of invalid TLS
-  let assert Error(_e) =
+  let assert Error(httpc.FailedToConnect(
+    ip4: httpc.TlsAlert("certificate_expired", _),
+    ip6: _,
+  )) =
     httpc.configure()
     |> httpc.verify_tls(True)
     |> httpc.dispatch(req)
