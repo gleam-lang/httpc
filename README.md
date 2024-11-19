@@ -6,7 +6,7 @@
 Bindings to Erlang's built in HTTP client, `httpc`.
 
 ```shell
-gleam add gleam_httpc@3
+gleam add gleam_httpc@4
 ```
 ```gleam
 import gleam/http/request
