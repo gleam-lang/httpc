@@ -152,7 +152,7 @@ pub opaque type Configuration {
     /// you are sure and you understand the risks.
     ///
     verify_tls: Bool,
-    /// TODO
+    /// Whether to follow redirects.
     ///
     autoredirect: Bool,
   )
@@ -177,7 +177,7 @@ pub fn verify_tls(config: Configuration, which: Bool) -> Configuration {
   Builder(..config, verify_tls: which)
 }
 
-/// TODO
+/// Set whether redirects should be followed automatically.
 pub fn autoredirect(config: Configuration, which: Bool) -> Configuration {
   Builder(..config, autoredirect: which)
 }
