@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.2.0 - 2025-02-05
+
+- The `HttpError` type has been introduced and is now used by the send
+  functions.
+
 ## v4.0.0 - 2024-11-10
 
 - The `HttpError` type has been introduced and is now used by the send
