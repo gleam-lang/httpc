@@ -100,11 +100,25 @@ pub fn ipv6_test() {
   let assert 200 = resp.status
 }
 
-pub fn autoredirect_test() {
+pub fn autoredirect_option_test() {
   // This redirects to https://
   let assert Ok(req) = request.to("http://packages.gleam.run")
+
+  // disabled by default
   let assert Ok(resp) = httpc.send(req)
   let assert 301 = resp.status
+
+  let assert Ok(resp) =
+    httpc.configure()
+    |> httpc.autoredirect(False)
+    |> httpc.dispatch(req)
+  let assert 301 = resp.status
+
+  let assert Ok(resp) =
+    httpc.configure()
+    |> httpc.autoredirect(True)
+    |> httpc.dispatch(req)
+  let assert 200 = resp.status
 }
 
 pub fn default_user_agent_test() {
