@@ -106,7 +106,7 @@ pub fn dispatch_bits(
     |> uri.to_string
     |> charlist.from_string
   let erl_headers = prepare_headers(req.headers)
-  let erl_http_options = [Autoredirect(config.autoredirect)]
+  let erl_http_options = [Autoredirect(config.follow_redirects)]
   let erl_http_options = case config.verify_tls {
     True -> erl_http_options
     False -> [Ssl([Verify(VerifyNone)]), ..erl_http_options]
@@ -154,14 +154,14 @@ pub opaque type Configuration {
     verify_tls: Bool,
     /// Whether to follow redirects.
     ///
-    autoredirect: Bool,
+    follow_redirects: Bool,
   )
 }
 
 /// Create a new configuration with the default settings.
 ///
 pub fn configure() -> Configuration {
-  Builder(verify_tls: True, autoredirect: False)
+  Builder(verify_tls: True, follow_redirects: False)
 }
 
 /// Set whether to verify the TLS certificate of the server.
@@ -178,8 +178,8 @@ pub fn verify_tls(config: Configuration, which: Bool) -> Configuration {
 }
 
 /// Set whether redirects should be followed automatically.
-pub fn autoredirect(config: Configuration, which: Bool) -> Configuration {
-  Builder(..config, autoredirect: which)
+pub fn follow_redirects(config: Configuration, which: Bool) -> Configuration {
+  Builder(..config, follow_redirects: which)
 }
 
 /// Send a HTTP request of unicode data.

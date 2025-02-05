@@ -100,7 +100,7 @@ pub fn ipv6_test() {
   let assert 200 = resp.status
 }
 
-pub fn autoredirect_option_test() {
+pub fn follow_redirects_option_test() {
   // This redirects to https://
   let assert Ok(req) = request.to("http://packages.gleam.run")
 
@@ -110,13 +110,13 @@ pub fn autoredirect_option_test() {
 
   let assert Ok(resp) =
     httpc.configure()
-    |> httpc.autoredirect(False)
+    |> httpc.follow_redirects(False)
     |> httpc.dispatch(req)
   let assert 301 = resp.status
 
   let assert Ok(resp) =
     httpc.configure()
-    |> httpc.autoredirect(True)
+    |> httpc.follow_redirects(True)
     |> httpc.dispatch(req)
   let assert 200 = resp.status
 }
