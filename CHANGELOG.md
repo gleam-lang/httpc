@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.0.1 - 2025-02-06
+
+- Relaxed the `gleam_http` requirement.
+
 ## v4.0.0 - 2024-11-10
 
 - The `HttpError` type has been introduced and is now used by the send
