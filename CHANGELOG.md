@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.2.0 - 2025-02-06
+
+- Added the `follow_redirects` configuration option.
+
 ## v4.0.1 - 2025-02-06
 
 - Relaxed the `gleam_http` requirement.
