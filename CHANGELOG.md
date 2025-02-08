@@ -1,6 +1,6 @@
 # Changelog
 
-## v4.2.0 - 2025-02-06
+## v4.1.0 - 2025-02-08
 
 - Added the `follow_redirects` configuration option.
 
