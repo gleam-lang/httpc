@@ -1,3 +1,4 @@
+import gleam/erlang/atom
 import gleam/http.{Get, Head, Options}
 import gleam/http/request
 import gleam/http/response
@@ -132,4 +133,32 @@ pub fn custom_user_agent_test() {
   let assert Ok(resp) =
     httpc.send(request.set_header(req, "user-agent", "gleam-test"))
   let assert True = string.contains(resp.body, "\"User-Agent\": \"gleam-test")
+}
+
+pub fn timeout_success_test() {
+  let req =
+    request.new()
+    |> request.set_method(Get)
+    |> request.set_host("httpbin.org")
+    |> request.set_path("/delay/1")
+
+  let assert Ok(resp) =
+    httpc.configure()
+    |> httpc.set_timeout(5000)
+    |> httpc.dispatch(req)
+
+  let assert 200 = resp.status
+}
+
+pub fn timeout_error_test() {
+  let req =
+    request.new()
+    |> request.set_method(Get)
+    |> request.set_host("httpbin.org")
+    |> request.set_path("/delay/1")
+
+  let assert Error(httpc.ResponseBodyTimeout) =
+    httpc.configure()
+    |> httpc.set_timeout(200)
+    |> httpc.dispatch(req)
 }

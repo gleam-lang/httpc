@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.2.0 - 2025-02-25
+
+- Added the `timeout` configuration option.
+
 ## v4.1.0 - 2025-02-08
 
 - Added the `follow_redirects` configuration option.
