@@ -5,12 +5,16 @@ import gleam/http.{type Method}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response, Response}
 import gleam/list
+import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/uri
 
 pub type HttpError {
   InvalidUtf8Response
   FailedToConnect(ip4: ConnectError, ip6: ConnectError)
+  /// The response body was not received within the configured timeout period
+  /// 
+  ResponseBodyTimeout
 }
 
 pub type ConnectError {
@@ -27,6 +31,7 @@ fn normalise_error(error: Dynamic) -> HttpError
 type ErlHttpOption {
   Ssl(List(ErlSslOption))
   Autoredirect(Bool)
+  Timeout(Int)
 }
 
 type BodyFormat {
@@ -106,7 +111,10 @@ pub fn dispatch_bits(
     |> uri.to_string
     |> charlist.from_string
   let erl_headers = prepare_headers(req.headers)
-  let erl_http_options = [Autoredirect(config.follow_redirects)]
+  let erl_http_options = case config.timeout {
+    None -> [Autoredirect(config.follow_redirects)]
+    Some(timeout) -> [Autoredirect(config.follow_redirects), Timeout(timeout)]
+  }
   let erl_http_options = case config.verify_tls {
     True -> erl_http_options
     False -> [Ssl([Verify(VerifyNone)]), ..erl_http_options]
@@ -155,13 +163,18 @@ pub opaque type Configuration {
     /// Whether to follow redirects.
     ///
     follow_redirects: Bool,
+    /// Timeout for the request in milliseconds.
+    /// This defaults to `Infinity`, meaning the request will not raise a timeout error 
+    /// unless you provide a timeout value.
+    ///
+    timeout: Option(Int),
   )
 }
 
 /// Create a new configuration with the default settings.
 ///
 pub fn configure() -> Configuration {
-  Builder(verify_tls: True, follow_redirects: False)
+  Builder(verify_tls: True, follow_redirects: False, timeout: None)
 }
 
 /// Set whether to verify the TLS certificate of the server.
@@ -180,6 +193,12 @@ pub fn verify_tls(config: Configuration, which: Bool) -> Configuration {
 /// Set whether redirects should be followed automatically.
 pub fn follow_redirects(config: Configuration, which: Bool) -> Configuration {
   Builder(..config, follow_redirects: which)
+}
+
+/// Set the timeout for the request in milliseconds.
+/// The default timeout value is `Infinity`, meaning the request will not raise a timeout error unless this is called
+pub fn set_timeout(config: Configuration, timeout: Int) -> Configuration {
+  Builder(..config, timeout: Some(timeout))
 }
 
 /// Send a HTTP request of unicode data.
