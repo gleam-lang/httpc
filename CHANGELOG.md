@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.2.0 - 2025-02-25
+
+- Added the `timeout` configuration option.
+
 ## v4.1.1 - 2025-05-14
 
 - `gleam_erlang` v1 now supported.

@@ -11,6 +11,8 @@ normalise_error(Error = {failed_connect, Opts}) ->
         _ -> erlang:error({unexpected_httpc_error, Error})
     end,
     {failed_to_connect, normalise_ip_error(Ipv4), normalise_ip_error(Ipv6)};
+normalise_error(timeout) -> 
+    response_body_timeout;
 normalise_error(Error) ->
     erlang:error({unexpected_httpc_error, Error}).
 
