@@ -157,7 +157,7 @@ pub fn timeout_error_test() {
     |> request.set_host("httpbin.org")
     |> request.set_path("/delay/1")
 
-  let assert Error(httpc.ResponseBodyTimeout) =
+  let assert Error(httpc.RequestTimeout) =
     httpc.configure()
     |> httpc.set_timeout(200)
     |> httpc.dispatch(req)

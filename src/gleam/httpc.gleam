@@ -14,7 +14,7 @@ pub type HttpError {
   FailedToConnect(ip4: ConnectError, ip6: ConnectError)
   /// The response body was not received within the configured timeout period
   /// 
-  ResponseBodyTimeout
+  RequestTimeout
 }
 
 pub type ConnectError {
