@@ -133,3 +133,13 @@ pub fn custom_user_agent_test() {
     httpc.send(request.set_header(req, "user-agent", "gleam-test"))
   let assert True = string.contains(resp.body, "\"User-Agent\": \"gleam-test")
 }
+
+pub fn timeout_test() {
+  let assert Ok(req) = request.to("https://echo.free.beeceptor.com")
+
+  let assert Error(httpc.FailedToConnect(ip4: httpc.Posix("timeout"), ..)) =
+    httpc.configure()
+    |> httpc.connection_timeout(httpc.Timeout(0))
+    |> httpc.dispatch(req)
+    |> echo
+}

@@ -27,6 +27,12 @@ fn normalise_error(error: Dynamic) -> HttpError
 type ErlHttpOption {
   Ssl(List(ErlSslOption))
   Autoredirect(Bool)
+  ConnectTimeout(ErlTimoutOption)
+}
+
+pub type Timeout {
+  Infinity
+  Timeout(milliseconds: Int)
 }
 
 type BodyFormat {
@@ -53,6 +59,11 @@ type ErlSslOption {
 type ErlVerifyOption {
   VerifyNone
 }
+
+type ErlTimoutOption
+
+@external(erlang, "gleam_httpc_ffi", "normalise_timeout")
+fn normalise_timeout(timeout: Timeout) -> ErlTimoutOption
 
 @external(erlang, "httpc", "request")
 fn erl_request(
@@ -106,7 +117,10 @@ pub fn dispatch_bits(
     |> uri.to_string
     |> charlist.from_string
   let erl_headers = prepare_headers(req.headers)
-  let erl_http_options = [Autoredirect(config.follow_redirects)]
+  let erl_http_options = [
+    Autoredirect(config.follow_redirects),
+    ConnectTimeout(normalise_timeout(config.connect_timeout)),
+  ]
   let erl_http_options = case config.verify_tls {
     True -> erl_http_options
     False -> [Ssl([Verify(VerifyNone)]), ..erl_http_options]
@@ -155,13 +169,15 @@ pub opaque type Configuration {
     /// Whether to follow redirects.
     ///
     follow_redirects: Bool,
+    ///
+    connect_timeout: Timeout,
   )
 }
 
 /// Create a new configuration with the default settings.
 ///
 pub fn configure() -> Configuration {
-  Builder(verify_tls: True, follow_redirects: False)
+  Builder(verify_tls: True, follow_redirects: False, connect_timeout: Infinity)
 }
 
 /// Set whether to verify the TLS certificate of the server.
@@ -180,6 +196,14 @@ pub fn verify_tls(config: Configuration, which: Bool) -> Configuration {
 /// Set whether redirects should be followed automatically.
 pub fn follow_redirects(config: Configuration, which: Bool) -> Configuration {
   Builder(..config, follow_redirects: which)
+}
+
+/// Set the connect timeout of the request.
+pub fn connection_timeout(
+  config: Configuration,
+  timeout: Timeout,
+) -> Configuration {
+  Builder(..config, connect_timeout: timeout)
 }
 
 /// Send a HTTP request of unicode data.

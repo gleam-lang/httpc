@@ -1,6 +1,6 @@
 -module(gleam_httpc_ffi).
--export([default_user_agent/0, normalise_error/1]).
 
+-export([default_user_agent/0, normalise_error/1, normalise_timeout/1]).
 normalise_error(Error = {failed_connect, Opts}) ->
     Ipv6 = case lists:keyfind(inet6, 1, Opts) of
         {inet6, _, V1} -> V1;
@@ -20,6 +20,11 @@ normalise_ip_error({tls_alert, {A, B}}) ->
     {tls_alert, erlang:atom_to_binary(A), unicode:characters_to_binary(B)};
 normalise_ip_error(Error) ->
     erlang:error({unexpected_httpc_ip_error, Error}).
+
+normalise_timeout({timeout, Timeout}) ->
+    Timeout;
+normalise_timeout(infinity) ->
+    infinity.
 
 default_user_agent() ->
     Version =
