@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.1.1 - 2025-05-14
+
+- `gleam_erlang` v1 now supported.
+
 ## v4.1.0 - 2025-02-08
 
 - Added the `follow_redirects` configuration option.
