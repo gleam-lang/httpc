@@ -18,9 +18,9 @@ pub fn request_test() {
     |> request.prepend_header("accept", "application/vnd.hmrc.1.0+json")
 
   let assert Ok(resp) = httpc.send(req)
-  let assert 200 = resp.status
-  let assert Ok("application/json") = response.get_header(resp, "content-type")
-  let assert "{\"message\":\"Hello World\"}" = resp.body
+  assert 200 == resp.status
+  assert response.get_header(resp, "content-type") == Ok("application/json")
+  assert resp.body == "{\"message\":\"Hello World\"}"
 }
 
 pub fn get_request_discards_body_test() {
@@ -33,9 +33,9 @@ pub fn get_request_discards_body_test() {
     |> request.prepend_header("accept", "application/vnd.hmrc.1.0+json")
 
   let assert Ok(resp) = httpc.send(req)
-  let assert 200 = resp.status
-  let assert Ok("application/json") = response.get_header(resp, "content-type")
-  let assert "{\"message\":\"Hello World\"}" = resp.body
+  assert 200 == resp.status
+  assert Ok("application/json") == response.get_header(resp, "content-type")
+  assert "{\"message\":\"Hello World\"}" == resp.body
 }
 
 pub fn head_request_discards_body_test() {
@@ -47,10 +47,10 @@ pub fn head_request_discards_body_test() {
     |> request.set_body("This gets dropped")
 
   let assert Ok(resp) = httpc.send(req)
-  let assert 200 = resp.status
-  let assert Ok("application/json; charset=utf-8") =
-    response.get_header(resp, "content-type")
-  let assert "" = resp.body
+  assert 200 == resp.status
+  assert Ok("application/json; charset=utf-8")
+    == response.get_header(resp, "content-type")
+  assert "" == resp.body
 }
 
 pub fn options_request_discards_body_test() {
@@ -62,10 +62,10 @@ pub fn options_request_discards_body_test() {
     |> request.set_body("This gets dropped")
 
   let assert Ok(resp) = httpc.send(req)
-  let assert 200 = resp.status
-  let assert Ok("text/html; charset=utf-8") =
-    response.get_header(resp, "content-type")
-  let assert "GET,HEAD,PUT,POST,DELETE,PATCH" = resp.body
+  assert 200 == resp.status
+  assert Ok("text/html; charset=utf-8")
+    == response.get_header(resp, "content-type")
+  assert "GET,HEAD,PUT,POST,DELETE,PATCH" == resp.body
 }
 
 pub fn invalid_tls_test() {
@@ -90,14 +90,14 @@ pub fn invalid_tls_test() {
     httpc.configure()
     |> httpc.verify_tls(False)
     |> httpc.dispatch(req)
-  let assert 200 = response.status
+  assert 200 == response.status
 }
 
 pub fn ipv6_test() {
   // This URL is ipv6 only
   let assert Ok(req) = request.to("https://ipv6.google.com")
   let assert Ok(resp) = httpc.send(req)
-  let assert 200 = resp.status
+  assert 200 == resp.status
 }
 
 pub fn follow_redirects_option_test() {
@@ -106,32 +106,32 @@ pub fn follow_redirects_option_test() {
 
   // disabled by default
   let assert Ok(resp) = httpc.send(req)
-  let assert 301 = resp.status
+  assert 301 == resp.status
 
   let assert Ok(resp) =
     httpc.configure()
     |> httpc.follow_redirects(False)
     |> httpc.dispatch(req)
-  let assert 301 = resp.status
+  assert 301 == resp.status
 
   let assert Ok(resp) =
     httpc.configure()
     |> httpc.follow_redirects(True)
     |> httpc.dispatch(req)
-  let assert 200 = resp.status
+  assert 200 == resp.status
 }
 
 pub fn default_user_agent_test() {
   let assert Ok(req) = request.to("https://echo.free.beeceptor.com")
   let assert Ok(resp) = httpc.send(req)
-  let assert True = string.contains(resp.body, "\"User-Agent\": \"gleam_httpc/")
+  assert string.contains(resp.body, "\"User-Agent\": \"gleam_httpc/")
 }
 
 pub fn custom_user_agent_test() {
   let assert Ok(req) = request.to("https://echo.free.beeceptor.com")
   let assert Ok(resp) =
     httpc.send(request.set_header(req, "user-agent", "gleam-test"))
-  let assert True = string.contains(resp.body, "\"User-Agent\": \"gleam-test")
+  assert string.contains(resp.body, "\"User-Agent\": \"gleam-test")
 }
 
 pub fn timeout_success_test() {
@@ -146,7 +146,7 @@ pub fn timeout_success_test() {
     |> httpc.timeout(5000)
     |> httpc.dispatch(req)
 
-  let assert 200 = resp.status
+  assert 200 == resp.status
 }
 
 pub fn timeout_error_test() {
@@ -156,8 +156,8 @@ pub fn timeout_error_test() {
     |> request.set_host("httpbin.org")
     |> request.set_path("/delay/1")
 
-  let assert Error(httpc.ResponseTimeout) =
-    httpc.configure()
+  assert httpc.configure()
     |> httpc.timeout(200)
     |> httpc.dispatch(req)
+    == Error(httpc.ResponseTimeout)
 }
