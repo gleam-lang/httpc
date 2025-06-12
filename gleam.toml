@@ -1,6 +1,6 @@
 name = "gleam_httpc"
 version = "4.2.0"
-gleam = ">= 1.0.0"
+gleam = ">= 1.11.0"
 
 licences = ["Apache-2.0"]
 description = "Gleam bindings to Erlang's built in HTTP client, httpc"

@@ -1,4 +1,3 @@
-import gleam/erlang/atom
 import gleam/http.{Get, Head, Options}
 import gleam/http/request
 import gleam/http/response
@@ -144,7 +143,7 @@ pub fn timeout_success_test() {
 
   let assert Ok(resp) =
     httpc.configure()
-    |> httpc.set_timeout(5000)
+    |> httpc.timeout(5000)
     |> httpc.dispatch(req)
 
   let assert 200 = resp.status
@@ -157,8 +156,8 @@ pub fn timeout_error_test() {
     |> request.set_host("httpbin.org")
     |> request.set_path("/delay/1")
 
-  let assert Error(httpc.RequestTimeout) =
+  let assert Error(httpc.ResponseTimeout) =
     httpc.configure()
-    |> httpc.set_timeout(200)
+    |> httpc.timeout(200)
     |> httpc.dispatch(req)
 }
