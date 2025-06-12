@@ -1,6 +1,6 @@
 # Changelog
 
-## v4.2.0 - 2025-02-25
+## v4.2.0 - 2025-06-12
 
 - Added the `timeout` configuration option.
 
