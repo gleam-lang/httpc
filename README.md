@@ -1,11 +1,11 @@
 # httpc
-<a href="https://github.com/gleam-lang/httpc/releases"><img src="https://img.shields.io/github/release/gleam-lang/httpc" alt="GitHub release"></a>
-<a href="https://discord.gg/Fm8Pwmy"><img src="https://img.shields.io/discord/768594524158427167?color=blue" alt="Discord chat"></a>
-![CI](https://github.com/gleam-lang/httpc/workflows/test/badge.svg?branch=main)
 
 Bindings to Erlang's built in HTTP client, `httpc`.
 
-```shell
+[![Package Version](https://img.shields.io/hexpm/v/gleam_httpc)](https://hex.pm/packages/gleam_httpc)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/gleam_httpc/)
+
+```sh
 gleam add gleam_httpc@4
 ```
 ```gleam
@@ -13,7 +13,6 @@ import gleam/http/request
 import gleam/http/response
 import gleam/httpc
 import gleam/result
-import gleeunit/should
 
 pub fn send_request() {
   // Prepare a HTTP request record
@@ -27,15 +26,12 @@ pub fn send_request() {
   use resp <- result.try(httpc.send(req))
 
   // We get a response record back
-  resp.status
-  |> should.equal(200)
+  assert resp.status == 200
 
-  resp
-  |> response.get_header("content-type")
-  |> should.equal(Ok("application/json"))
+  let content_type = response.get_header(resp, "content-type")
+  assert content_type == Ok("application/json")
 
-  resp.body
-  |> should.equal("{\"message\":\"Hello World\"}")
+  assert resp.body == "{\"message\":\"Hello World\"}"
 
   Ok(resp)
 }
