@@ -121,7 +121,7 @@ pub fn dispatch_bits(
   }
   let erl_options = [BodyFormat(Binary), SocketOpts([Ipfamily(Inet6fb4)])]
 
-  use response <- result.then(
+  use response <- result.try(
     case req.method {
       http.Options | http.Head | http.Get -> {
         let erl_req = #(erl_url, erl_headers)
