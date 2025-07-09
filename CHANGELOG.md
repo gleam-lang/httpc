@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.2.1 - 2025-07-09
+
+- Updated for latest `gleam_stdlib`.
+
 ## v4.2.0 - 2025-06-12
 
 - Added the `timeout` configuration option.
