@@ -6,7 +6,7 @@ Bindings to Erlang's built in HTTP client, `httpc`.
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/gleam_httpc/)
 
 ```sh
-gleam add gleam_httpc@4
+gleam add gleam_httpc@5
 ```
 ```gleam
 import gleam/http/request
