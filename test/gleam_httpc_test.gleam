@@ -106,13 +106,13 @@ pub fn follow_redirects_option_test() {
 
   // disabled by default
   let assert Ok(resp) = httpc.send(req)
-  assert 301 == resp.status
+  assert 308 == resp.status
 
   let assert Ok(resp) =
     httpc.configure()
     |> httpc.follow_redirects(False)
     |> httpc.dispatch(req)
-  assert 301 == resp.status
+  assert 308 == resp.status
 
   let assert Ok(resp) =
     httpc.configure()
