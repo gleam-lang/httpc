@@ -102,7 +102,7 @@ fn string_header(header: #(Charlist, Charlist)) -> #(String, String) {
   #(charlist.to_string(k), charlist.to_string(v))
 }
 
-fn to_erl_tls_version(version: TlsVersion) -> ErlTlsVersion {
+fn tls_version(version: TlsVersion) -> ErlTlsVersion {
   case version {
     Tls12 -> erl_tlsv12()
     Tls13 -> erl_tlsv13()
@@ -146,7 +146,7 @@ pub fn dispatch_bits(
   }
   let ssl_opts = case config.tls_versions {
     [] -> ssl_opts
-    versions -> [Versions(list.map(versions, to_erl_tls_version)), ..ssl_opts]
+    versions -> [Versions(list.map(versions, tls_version)), ..ssl_opts]
   }
   let erl_http_options = case ssl_opts {
     [] -> erl_http_options
