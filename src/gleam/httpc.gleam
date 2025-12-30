@@ -22,6 +22,13 @@ pub type ConnectError {
   TlsAlert(code: String, detail: String)
 }
 
+/// Use with `tls_versions` to restrict which TLS versions the client will use.
+/// This can be needed when interfacing with old or buggy TLS implementations.
+pub type TlsVersion {
+  Tls12
+  Tls13
+}
+
 @external(erlang, "gleam_httpc_ffi", "default_user_agent")
 fn default_user_agent() -> #(Charlist, Charlist)
 
@@ -53,11 +60,20 @@ type Inet6fb4 {
 
 type ErlSslOption {
   Verify(ErlVerifyOption)
+  Versions(List(ErlTlsVersion))
 }
 
 type ErlVerifyOption {
   VerifyNone
 }
+
+type ErlTlsVersion
+
+@external(erlang, "gleam_httpc_ffi", "tlsv12")
+fn erl_tlsv12() -> ErlTlsVersion
+
+@external(erlang, "gleam_httpc_ffi", "tlsv13")
+fn erl_tlsv13() -> ErlTlsVersion
 
 @external(erlang, "httpc", "request")
 fn erl_request(
@@ -84,6 +100,13 @@ fn erl_request_no_body(
 fn string_header(header: #(Charlist, Charlist)) -> #(String, String) {
   let #(k, v) = header
   #(charlist.to_string(k), charlist.to_string(v))
+}
+
+fn to_erl_tls_version(version: TlsVersion) -> ErlTlsVersion {
+  case version {
+    Tls12 -> erl_tlsv12()
+    Tls13 -> erl_tlsv13()
+  }
 }
 
 // TODO: refine error type
@@ -115,10 +138,21 @@ pub fn dispatch_bits(
     Autoredirect(config.follow_redirects),
     Timeout(config.timeout),
   ]
-  let erl_http_options = case config.verify_tls {
-    True -> erl_http_options
-    False -> [Ssl([Verify(VerifyNone)]), ..erl_http_options]
+
+  // Build SSL options based on verify_tls and tls_versions settings
+  let ssl_opts = case config.verify_tls {
+    True -> []
+    False -> [Verify(VerifyNone)]
   }
+  let ssl_opts = case config.tls_versions {
+    [] -> ssl_opts
+    versions -> [Versions(list.map(versions, to_erl_tls_version)), ..ssl_opts]
+  }
+  let erl_http_options = case ssl_opts {
+    [] -> erl_http_options
+    _ -> [Ssl(ssl_opts), ..erl_http_options]
+  }
+
   let erl_options = [BodyFormat(Binary), SocketOpts([Ipfamily(Inet6fb4)])]
 
   use response <- result.try(
@@ -166,6 +200,9 @@ pub opaque type Configuration {
     /// Timeout for the request in milliseconds.
     ///
     timeout: Int,
+    /// Which TLS versions to allow. If empty, uses system defaults.
+    ///
+    tls_versions: List(TlsVersion),
   )
 }
 
@@ -177,9 +214,15 @@ pub opaque type Configuration {
 /// - Redirects are not followed.
 /// - The timeout for the response to be received is 30 seconds from when the
 ///   request is sent.
+/// - All TLS versions supported by the system are allowed.
 ///
 pub fn configure() -> Configuration {
-  Builder(verify_tls: True, follow_redirects: False, timeout: 30_000)
+  Builder(
+    verify_tls: True,
+    follow_redirects: False,
+    timeout: 30_000,
+    tls_versions: [],
+  )
 }
 
 /// Set whether to verify the TLS certificate of the server.
@@ -207,6 +250,15 @@ pub fn follow_redirects(config: Configuration, which: Bool) -> Configuration {
 ///
 pub fn timeout(config: Configuration, timeout: Int) -> Configuration {
   Builder(..config, timeout:)
+}
+
+/// Set which TLS versions to allow for HTTPS connections.
+///
+pub fn tls_versions(
+  config: Configuration,
+  versions: List(TlsVersion),
+) -> Configuration {
+  Builder(..config, tls_versions: versions)
 }
 
 /// Send a HTTP request of unicode data.

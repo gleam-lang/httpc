@@ -1,5 +1,9 @@
 -module(gleam_httpc_ffi).
--export([default_user_agent/0, normalise_error/1]).
+-export([default_user_agent/0, normalise_error/1, tlsv12/0, tlsv13/0]).
+
+%% TLS version atoms for SSL options
+tlsv12() -> 'tlsv1.2'.
+tlsv13() -> 'tlsv1.3'.
 
 normalise_error(Error = {failed_connect, Opts}) ->
     Ipv6 = case lists:keyfind(inet6, 1, Opts) of
