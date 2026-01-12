@@ -1,3 +1,4 @@
+import gleam/erlang/process
 import gleam/http.{Get, Head, Options}
 import gleam/http/request
 import gleam/http/response
@@ -160,4 +161,88 @@ pub fn timeout_error_test() {
     |> httpc.timeout(200)
     |> httpc.dispatch(req)
     == Error(httpc.ResponseTimeout)
+}
+
+pub fn send_stream_request_test() {
+  let req =
+    request.new()
+    |> request.set_method(Get)
+    |> request.set_host("postman-echo.com")
+    |> request.set_path("/stream/1")
+
+  let assert Ok(request_id) =
+    httpc.configure()
+    |> httpc.dispatch_stream_request(req)
+
+  let selector =
+    process.new_selector()
+    |> httpc.select_stream_messages(httpc.raw_stream_mapper())
+
+  let assert Ok(httpc.StreamStart(request_id_, _headers, pid)) =
+    process.selector_receive(selector, 1000)
+  assert request_id_ == request_id
+
+  httpc.receive_next_stream_message(pid)
+  let assert Ok(httpc.StreamChunk(request_id_, _binary_part)) =
+    process.selector_receive(selector, 1000)
+  assert request_id_ == request_id
+
+  httpc.receive_next_stream_message(pid)
+  let assert Ok(httpc.StreamEnd(request_id_, _headers)) =
+    process.selector_receive(selector, 1000)
+  assert request_id_ == request_id
+}
+
+pub fn dispatch_stream_request_test() {
+  let req =
+    request.new()
+    |> request.set_method(Get)
+    |> request.set_host("postman-echo.com")
+    |> request.set_path("/stream/1")
+
+  let config =
+    httpc.configure()
+    |> httpc.timeout(5000)
+
+  let assert Ok(request_id) = httpc.dispatch_stream_request(config, req)
+
+  let selector =
+    process.new_selector()
+    |> httpc.select_stream_messages(httpc.raw_stream_mapper())
+
+  let assert Ok(httpc.StreamStart(request_id_, _headers, pid)) =
+    process.selector_receive(selector, 1000)
+  assert request_id_ == request_id
+
+  httpc.receive_next_stream_message(pid)
+  let assert Ok(httpc.StreamChunk(request_id_, _binary_part)) =
+    process.selector_receive(selector, 1000)
+  assert request_id_ == request_id
+
+  httpc.receive_next_stream_message(pid)
+  let assert Ok(httpc.StreamEnd(request_id_, _headers)) =
+    process.selector_receive(selector, 1000)
+  assert request_id_ == request_id
+}
+
+pub fn send_stream_request_error_test() {
+  // httpstat.us has a special “500?fail=true” mode that closes the
+  // connection mid-response.  This results in httpc reporting a
+  // SocketClosedRemotely
+  let req =
+    request.new()
+    |> request.set_method(Get)
+    |> request.set_host("httpstat.us")
+    |> request.set_path("/500?fail=true")
+
+  let selector =
+    process.new_selector()
+    |> httpc.select_stream_messages(httpc.raw_stream_mapper())
+
+  let assert Ok(request_id) =
+    httpc.configure()
+    |> httpc.dispatch_stream_request(req)
+
+  assert process.selector_receive(selector, 1000)
+    == Ok(httpc.StreamError(request_id, httpc.SocketClosedRemotely))
 }
