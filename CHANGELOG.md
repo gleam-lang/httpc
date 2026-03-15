@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where requests to IPv6 literal hosts would fail.
+- Added the `send_tree` and `dispatch_tree` functions to send data using the `BytesTree` type
 
 ## v5.0.0 - 2025-07-12
 
