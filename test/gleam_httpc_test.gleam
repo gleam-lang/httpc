@@ -1,7 +1,9 @@
+import gleam/bit_array
 import gleam/http.{Get, Head, Options}
 import gleam/http/request
 import gleam/http/response
 import gleam/httpc
+import gleam/result
 import gleam/string
 import gleeunit
 
@@ -95,8 +97,10 @@ pub fn invalid_tls_test() {
 
 pub fn ipv6_test() {
   // This URL is ipv6 only
-  let assert Ok(req) = request.to("https://ipv6.google.com")
-  let assert Ok(resp) = httpc.send(req)
+  let assert Ok(req) =
+    request.to("https://ipv6.google.com")
+    |> result.map(request.map(_, bit_array.from_string))
+  let assert Ok(resp) = httpc.send_bits(req)
   assert 200 == resp.status
 }
 
