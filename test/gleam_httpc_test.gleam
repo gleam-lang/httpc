@@ -93,6 +93,15 @@ pub fn invalid_tls_test() {
   assert 200 == response.status
 }
 
+pub fn ipv4_test() {
+  let config = httpc.configure() |> httpc.ip_family(httpc.Inet)
+  let assert Ok(req) =
+    request.to("https://ipv4.google.com")
+    |> result.map(request.map(_, bit_array.from_string))
+  let assert Ok(resp) = httpc.dispatch_bits(config, req)
+  assert 200 == resp.status
+}
+
 pub fn ipv6_test() {
   // This URL is ipv6 only
   let assert Ok(req) = request.to("https://ipv6.google.com")

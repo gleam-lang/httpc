@@ -44,10 +44,18 @@ type ErlOption {
 }
 
 type SocketOpt {
-  Ipfamily(Inet6fb4)
+  Ipfamily(IpFamily)
 }
 
-type Inet6fb4 {
+pub type IpFamily {
+  /// IPv4
+  ///
+  Inet
+  /// IPv6
+  ///
+  Inet6
+  /// Attempt IPv6, and fallback to IPv4 if unavailable
+  ///
   Inet6fb4
 }
 
@@ -119,7 +127,10 @@ pub fn dispatch_bits(
     True -> erl_http_options
     False -> [Ssl([Verify(VerifyNone)]), ..erl_http_options]
   }
-  let erl_options = [BodyFormat(Binary), SocketOpts([Ipfamily(Inet6fb4)])]
+  let erl_options = [
+    BodyFormat(Binary),
+    SocketOpts([Ipfamily(config.ip_family)]),
+  ]
 
   use response <- result.try(
     case req.method {
@@ -166,6 +177,9 @@ pub opaque type Configuration {
     /// Timeout for the request in milliseconds.
     ///
     timeout: Int,
+    /// What type of IP connection to use.
+    ///
+    ip_family: IpFamily,
   )
 }
 
@@ -179,7 +193,12 @@ pub opaque type Configuration {
 ///   request is sent.
 ///
 pub fn configure() -> Configuration {
-  Builder(verify_tls: True, follow_redirects: False, timeout: 30_000)
+  Builder(
+    verify_tls: True,
+    follow_redirects: False,
+    timeout: 30_000,
+    ip_family: Inet6fb4,
+  )
 }
 
 /// Set whether to verify the TLS certificate of the server.
@@ -207,6 +226,11 @@ pub fn follow_redirects(config: Configuration, which: Bool) -> Configuration {
 ///
 pub fn timeout(config: Configuration, timeout: Int) -> Configuration {
   Builder(..config, timeout:)
+}
+
+/// Set the IP address family to use for the request, the default being Inet6fb4.
+pub fn ip_family(config: Configuration, ip_family: IpFamily) -> Configuration {
+  Builder(..config, ip_family:)
 }
 
 /// Send a HTTP request of unicode data.
