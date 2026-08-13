@@ -5,6 +5,7 @@ import gleam/http.{type Method}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response, Response}
 import gleam/list
+import gleam/option.{type Option}
 import gleam/result
 import gleam/uri
 
@@ -12,7 +13,7 @@ pub type HttpError {
   /// The response body contained non-UTF-8 data, but UTF-8 data was expected.
   InvalidUtf8Response
   /// It was not possible to connect to the host.
-  FailedToConnect(ip4: ConnectError, ip6: ConnectError)
+  FailedToConnect(ip4: Option(ConnectError), ip6: Option(ConnectError))
   /// The response was not received within the configured timeout period.
   ResponseTimeout
 }

@@ -1,7 +1,10 @@
+import gleam/bit_array
 import gleam/http.{Get, Head, Options}
 import gleam/http/request
 import gleam/http/response
 import gleam/httpc
+import gleam/option.{None, Some}
+import gleam/result
 import gleam/string
 import gleeunit
 
@@ -73,13 +76,13 @@ pub fn invalid_tls_test() {
 
   // This will fail because of invalid TLS
   let assert Error(httpc.FailedToConnect(
-    ip4: httpc.TlsAlert("certificate_expired", _),
+    ip4: Some(httpc.TlsAlert("certificate_expired", _)),
     ip6: _,
   )) = httpc.send(req)
 
   // This will fail because of invalid TLS
   let assert Error(httpc.FailedToConnect(
-    ip4: httpc.TlsAlert("certificate_expired", _),
+    ip4: Some(httpc.TlsAlert("certificate_expired", _)),
     ip6: _,
   )) =
     httpc.configure()
