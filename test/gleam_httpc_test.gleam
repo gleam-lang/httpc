@@ -93,8 +93,8 @@ pub fn invalid_tls_test() {
   assert 200 == response.status
 }
 
-pub fn ipv4_test() {
-  let config = httpc.configure() |> httpc.ip_family(httpc.Inet)
+pub fn force_ipv4_test() {
+  let config = httpc.configure() |> httpc.force_ipv4
   let assert Ok(req) =
     request.to("https://ipv4.google.com")
     |> result.map(request.map(_, bit_array.from_string))

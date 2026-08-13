@@ -47,7 +47,7 @@ type SocketOpt {
   Ipfamily(IpFamily)
 }
 
-pub type IpFamily {
+type IpFamily {
   /// IPv4
   ///
   Inet
@@ -228,9 +228,36 @@ pub fn timeout(config: Configuration, timeout: Int) -> Configuration {
   Builder(..config, timeout:)
 }
 
-/// Set the IP address family to use for the request, the default being Inet6fb4.
-pub fn ip_family(config: Configuration, ip_family: IpFamily) -> Configuration {
-  Builder(..config, ip_family:)
+/// Force an IPv4 connection.
+///
+/// By default, requests attempt to use an IPv6 connection, and fallback to
+/// IPv4 if that fails.
+///
+/// Once `force_ipv4` has been called on a `Configuration`, the default
+/// fallback behavior can't be restored. To Force IPv4 for a single request
+/// only, bind a configuration to a variable before calling `force_ipv4`.
+///
+/// ```gleam
+/// let request = ...
+/// let config = configure() |> timeout(20)
+/// let config_v4 = config |> force_ipv4
+/// let v4_resp = dispatch(config_v4, request)
+/// let resp = dispatch(config, request)
+/// ```
+///
+pub fn force_ipv4(config: Configuration) -> Configuration {
+  Builder(..config, ip_family: Inet)
+}
+
+/// Force an IPv6 connection.
+///
+/// By default, requests attempt to use an IPv6 connection, and fallback to
+/// IPv4 if that fails.
+///
+/// See [`force_ipv4`](#force_ipv4) for details.
+///
+pub fn force_ipv6(config: Configuration) -> Configuration {
+  Builder(..config, ip_family: Inet6)
 }
 
 /// Send a HTTP request of unicode data.
