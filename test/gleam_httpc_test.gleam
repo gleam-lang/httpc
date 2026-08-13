@@ -105,6 +105,37 @@ pub fn force_ipv4_test() {
   assert 200 == resp.status
 }
 
+pub fn force_ipv4_failure_test() {
+  let config = httpc.configure() |> httpc.force_ipv4
+  let assert Ok(req) =
+    request.to("https://ipv6.google.com")
+    |> result.map(request.map(_, bit_array.from_string))
+  let assert Error(httpc.FailedToConnect(
+    ip4: Some(httpc.Posix("nxdomain")),
+    ip6: None,
+  )) = httpc.dispatch_bits(config, req)
+}
+
+pub fn force_ipv6_test() {
+  let config = httpc.configure() |> httpc.force_ipv6
+  let assert Ok(req) =
+    request.to("https://ipv6.google.com")
+    |> result.map(request.map(_, bit_array.from_string))
+  let assert Ok(resp) = httpc.dispatch_bits(config, req)
+  assert 200 == resp.status
+}
+
+pub fn force_ipv6_failure_test() {
+  let config = httpc.configure() |> httpc.force_ipv6
+  let assert Ok(req) =
+    request.to("https://ipv4.google.com")
+    |> result.map(request.map(_, bit_array.from_string))
+  let assert Error(httpc.FailedToConnect(
+    ip4: None,
+    ip6: Some(httpc.Posix("nxdomain")),
+  )) = httpc.dispatch_bits(config, req)
+}
+
 pub fn ipv6_test() {
   // This URL is ipv6 only
   let assert Ok(req) = request.to("https://ipv6.google.com")
