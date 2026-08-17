@@ -162,3 +162,30 @@ pub fn timeout_error_test() {
     |> httpc.dispatch(req)
     == Error(httpc.ResponseTimeout)
 }
+
+pub fn tls_versions_tls12_enforced_test() {
+  // Verify TLS 1.2 is actually used when configured
+  // check.ja3.zone returns JSON with "protocol" field showing TLS version
+  let assert Ok(req) = request.to("https://check.ja3.zone/")
+
+  let assert Ok(resp) =
+    httpc.configure()
+    |> httpc.verify_tls(False)
+    |> httpc.tls_versions([httpc.Tls12])
+    |> httpc.dispatch(req)
+
+  assert string.contains(resp.body, "\"protocol\":\"TLSv1.2\"")
+}
+
+pub fn tls_versions_tls13_enforced_test() {
+  // Verify TLS 1.3 is actually used when configured
+  let assert Ok(req) = request.to("https://check.ja3.zone/")
+
+  let assert Ok(resp) =
+    httpc.configure()
+    |> httpc.verify_tls(False)
+    |> httpc.tls_versions([httpc.Tls13])
+    |> httpc.dispatch(req)
+
+  assert string.contains(resp.body, "\"protocol\":\"TLSv1.3\"")
+}
