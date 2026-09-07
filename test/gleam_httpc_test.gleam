@@ -65,7 +65,7 @@ pub fn options_request_discards_body_test() {
     |> request.set_method(Options)
     |> request.set_body("This gets dropped")
 
-  let assert Ok(http_resp) = httpc.send(req)
+  let assert Ok(http_resp) = echo httpc.send(req)
   assert http_resp.status == 200
 
   let resp = mock_server.decode_response(http_resp.body)
