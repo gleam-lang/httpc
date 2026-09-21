@@ -1,3 +1,5 @@
+import gleam/bit_array
+import gleam/bytes_tree
 import gleam/dict
 import gleam/http.{Get, Head, Options}
 import gleam/http/request
@@ -146,6 +148,27 @@ pub fn custom_user_agent_test() {
 
   let resp = mock_server.decode_response(http_resp.body)
   assert dict.get(resp.headers, "user-agent") == Ok("gleam-test")
+}
+
+pub fn bytes_tree_test() {
+  let body =
+    bytes_tree.new()
+    |> bytes_tree.append_string("Hello")
+    |> bytes_tree.append_string(" ")
+    |> bytes_tree.append_string("Joe")
+    |> bytes_tree.append_string("!")
+
+  let assert Ok(req) = request.to(mock_server.url("/"))
+
+  let assert Ok(http_resp) =
+    req
+    |> request.set_method(http.Post)
+    |> request.set_body(body)
+    |> httpc.send_tree
+
+  let assert Ok(http_body_string) = bit_array.to_string(http_resp.body)
+  let resp = mock_server.decode_response(http_body_string)
+  assert resp.body == "Hello Joe!"
 }
 
 pub fn timeout_success_test() {
