@@ -1,5 +1,5 @@
 -module(gleam_httpc_ffi).
--export([default_user_agent/0, normalise_error/1]).
+-export([default_user_agent/0, normalise_error/1, max_size_bytes/1, max_size_nolimit/0]).
 
 normalise_error(Error = {failed_connect, Opts}) ->
     Ipv6 = case lists:keyfind(inet6, 1, Opts) of
@@ -13,6 +13,10 @@ normalise_error(Error = {failed_connect, Opts}) ->
     {failed_to_connect, normalise_ip_error(Ipv4), normalise_ip_error(Ipv6)};
 normalise_error(timeout) -> 
     response_timeout;
+normalise_error({header_too_long, {max, _MaxSize}}) ->
+    response_header_too_large;
+normalise_error(body_too_big) ->
+    response_body_too_large;
 normalise_error(Error) ->
     erlang:error({unexpected_httpc_error, Error}).
 
@@ -30,3 +34,6 @@ default_user_agent() ->
             undefined -> "0.0.0"
         end,
     {"user-agent", "gleam_httpc/" ++ Version}.
+
+max_size_bytes(N) when is_integer(N) -> N.
+max_size_nolimit() -> nolimit.

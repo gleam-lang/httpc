@@ -16,6 +16,10 @@ pub type HttpError {
   FailedToConnect(ip4: ConnectError, ip6: ConnectError)
   /// The response was not received within the configured timeout period.
   ResponseTimeout
+  /// The cumulative bytes of the response header was larger than `max_header_size`.
+  ResponseHeaderTooLarge
+  /// The response body was larger than `max_body_size`.
+  ResponseBodyTooLarge
 }
 
 pub type ConnectError {
@@ -28,6 +32,12 @@ fn default_user_agent() -> #(Charlist, Charlist)
 
 @external(erlang, "gleam_httpc_ffi", "normalise_error")
 fn normalise_error(error: Dynamic) -> HttpError
+
+@external(erlang, "gleam_httpc_ffi", "max_size_bytes")
+fn erl_max_size_bytes(n: Int) -> ErlMaxSize
+
+@external(erlang, "gleam_httpc_ffi", "max_size_nolimit")
+fn erl_max_size_nolimit() -> ErlMaxSize
 
 type ErlHttpOption {
   Ssl(List(ErlSslOption))
@@ -43,6 +53,8 @@ type ErlOption {
   BodyFormat(BodyFormat)
   SocketOpts(List(SocketOpt))
   Ipv6HostWithBrackets(Bool)
+  MaxHeaderSize(ErlMaxSize)
+  MaxBodySize(ErlMaxSize)
 }
 
 type SocketOpt {
@@ -59,6 +71,15 @@ type ErlSslOption {
 
 type ErlVerifyOption {
   VerifyNone
+}
+
+type ErlMaxSize
+
+pub type MaxSize {
+  /// The maximum size, measured in bytes
+  Bytes(Int)
+  /// The maximum size is not enforced
+  Nolimit
 }
 
 @external(erlang, "httpc", "request")
@@ -136,10 +157,15 @@ pub fn dispatch_bits(
     True -> erl_http_options
     False -> [Ssl([Verify(VerifyNone)]), ..erl_http_options]
   }
+
+  let erl_max_header_size = erl_max_size(config.max_header_size)
+  let erl_max_body_size = erl_max_size(config.max_body_size)
   let erl_options = [
     BodyFormat(Binary),
     SocketOpts([Ipfamily(Inet6fb4)]),
     Ipv6HostWithBrackets(True),
+    MaxHeaderSize(erl_max_header_size),
+    MaxBodySize(erl_max_body_size),
   ]
 
   use response <- result.try(
@@ -187,6 +213,13 @@ pub opaque type Configuration {
     /// Timeout for the request in milliseconds.
     ///
     timeout: Int,
+    /// Maximum total number of bytes allowed for the response headers
+    /// (cumulative across all header lines).
+    ///
+    max_header_size: MaxSize,
+    /// Maximum number of bytes allowed for the response body.
+    ///
+    max_body_size: MaxSize,
   )
 }
 
@@ -200,7 +233,13 @@ pub opaque type Configuration {
 ///   request is sent.
 ///
 pub fn configure() -> Configuration {
-  Builder(verify_tls: True, follow_redirects: False, timeout: 30_000)
+  Builder(
+    verify_tls: True,
+    follow_redirects: False,
+    timeout: 30_000,
+    max_header_size: Bytes(10_240),
+    max_body_size: Nolimit,
+  )
 }
 
 /// Set whether to verify the TLS certificate of the server.
@@ -228,6 +267,33 @@ pub fn follow_redirects(config: Configuration, which: Bool) -> Configuration {
 ///
 pub fn timeout(config: Configuration, timeout: Int) -> Configuration {
   Builder(..config, timeout:)
+}
+
+/// Set the maximum size limit in bytes for the combination of all the headers
+/// of the response.
+///
+/// The default is 10_240 bytes.
+///
+/// If a response's headers are larger than this limit then the
+/// `ResponseHeaderTooLarge` error is returned.
+pub fn max_header_size(
+  config: Configuration,
+  max_header_size: MaxSize,
+) -> Configuration {
+  Builder(..config, max_header_size:)
+}
+
+/// Set the maximum size limit in bytes for the body of the response.
+///
+/// The default is unlimited.
+///
+/// If a response's body is larger than this limit then the
+/// `ResponseBodyTooLarge` error is returned.
+pub fn max_body_size(
+  config: Configuration,
+  max_body_size: MaxSize,
+) -> Configuration {
+  Builder(..config, max_body_size:)
 }
 
 /// Send a HTTP request of unicode data.
@@ -274,5 +340,12 @@ fn prepare_headers_loop(
       let out = [#(charlist.from_string(k), charlist.from_string(v)), ..out]
       prepare_headers_loop(in, out, user_agent_set)
     }
+  }
+}
+
+fn erl_max_size(max_size: MaxSize) -> ErlMaxSize {
+  case max_size {
+    Bytes(bytes) -> erl_max_size_bytes(bytes)
+    Nolimit -> erl_max_size_nolimit()
   }
 }

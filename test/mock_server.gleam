@@ -11,6 +11,7 @@ import gleam/int
 import gleam/json
 import gleam/list
 import gleam/result
+import gleam/string
 import mist.{type Connection, type ResponseData}
 
 pub type MockResponse {
@@ -80,6 +81,24 @@ fn http_handler(req: Request(Connection)) -> Response(ResponseData) {
       let assert Ok(ms) = int.parse(ms_str)
       process.sleep(ms)
       test_response(req)
+    }
+
+    ["header_size", size_bytes_str], _ -> {
+      let assert Ok(size_bytes) = int.parse(size_bytes_str)
+      let half = size_bytes / 2
+
+      response.new(200)
+      |> response.set_header("payload-a", string.repeat("a", half))
+      |> response.set_header("payload-b", string.repeat("b", size_bytes - half))
+      |> response.set_body(mist.Bytes(bytes_tree.new()))
+    }
+
+    ["body_size", size_bytes_str], _ -> {
+      let assert Ok(size_bytes) = int.parse(size_bytes_str)
+      let body = string.repeat("a", size_bytes)
+
+      response.new(200)
+      |> response.set_body(mist.Bytes(bytes_tree.from_string(body)))
     }
 
     ["redirect"], _ -> {
