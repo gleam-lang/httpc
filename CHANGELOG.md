@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where requests to IPv6 literal hosts would fail.
+- Added `max_body_size` and `max_header_size` configuration options and associated errors.
 
 ## v5.0.0 - 2025-07-12
 

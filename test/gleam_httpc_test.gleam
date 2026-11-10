@@ -167,3 +167,54 @@ pub fn timeout_error_test() {
     |> httpc.dispatch(req)
     == Error(httpc.ResponseTimeout)
 }
+
+pub fn max_header_size_success_test() {
+  let assert Ok(req) = request.to(mock_server.url("/header_size/100"))
+
+  let assert Ok(http_resp) =
+    httpc.configure()
+    |> httpc.max_header_size(httpc.Bytes(300))
+    |> httpc.dispatch(req)
+
+  assert http_resp.status == 200
+}
+
+pub fn max_header_size_error_test() {
+  let assert Ok(req) = request.to(mock_server.url("/header_size/100"))
+
+  assert httpc.configure()
+    |> httpc.max_header_size(httpc.Bytes(50))
+    |> httpc.dispatch(req)
+    == Error(httpc.ResponseHeaderTooLarge)
+}
+
+pub fn max_header_size_cumulative_error_test() {
+  let assert Ok(req) = request.to(mock_server.url("/header_size/300"))
+
+  // each ~150-byte header is under the 200-byte limit alone,
+  // but together they exceed it
+  assert httpc.configure()
+    |> httpc.max_header_size(httpc.Bytes(200))
+    |> httpc.dispatch(req)
+    == Error(httpc.ResponseHeaderTooLarge)
+}
+
+pub fn max_body_size_success_test() {
+  let assert Ok(req) = request.to(mock_server.url("/body_size/100"))
+
+  let assert Ok(http_resp) =
+    httpc.configure()
+    |> httpc.max_body_size(httpc.Bytes(200))
+    |> httpc.dispatch(req)
+
+  assert http_resp.status == 200
+}
+
+pub fn max_body_size_error_test() {
+  let assert Ok(req) = request.to(mock_server.url("/body_size/100"))
+
+  assert httpc.configure()
+    |> httpc.max_body_size(httpc.Bytes(50))
+    |> httpc.dispatch(req)
+    == Error(httpc.ResponseBodyTooLarge)
+}
